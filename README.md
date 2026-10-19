@@ -1,5 +1,7 @@
 # CFD-MD-plotting
 
+**English** | [简体中文](README.zh-CN.md)
+
 Publication-quality figures for CFD and molecular-dynamics results, as two cooperating agent skills that share one
 colour, typography and layout system.
 
@@ -95,5 +97,5 @@ docs/               DESIGN.md (decisions), UPGRADING.md
 ## Credits and licences
 
 Design ideas follow N. P. Rougier, *Scientific Visualization: Python + Matplotlib*; see [`SOURCES.md`](SOURCES.md).
-Bundled third-party assets keep their licences (cmcrameri colour tables: MIT; Roboto fonts: Apache-2.0).
-A licence for this repository's own code has not been chosen yet.
+This repository is released under the [MIT License](LICENSE). Bundled third-party assets keep their own licences
+(cmcrameri colour tables: MIT; Roboto fonts: Apache-2.0).

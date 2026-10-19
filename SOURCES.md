@@ -12,4 +12,4 @@
   `font="rougier"`; licence text included. Arial is never bundled.
 - Matplotlib, NumPy: runtime dependencies, not redistributed.
 
-This repository's own code has no licence file yet.
+This repository's own code is under the MIT License (`LICENSE`).
