@@ -1,0 +1,32 @@
+{
+  "profile": "paper",
+  "synthetic": true,
+  "formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "source_id": "make_demo.py synthetic analytic field",
+  "grid": "rectilinear",
+  "units": "dimensionless",
+  "coordinate_units": "dimensionless",
+  "domain_description": "Synthetic rectangle with an explicitly masked circular hole. No CFD/MD inference.",
+  "xlabel": "$x/\\ell_0$",
+  "ylabel": "$z/\\ell_0$",
+  "height_mm": 52,
+  "colorbar_label": "$s/s_0$",
+  "data": "field_cell.npz",
+  "association": "cell",
+  "method": "pcolormesh",
+  "limits": [
+    0,
+    1
+  ],
+  "cmap": "cmc.oslo_r",
+  "output": "../previews/field_cell",
+  "ticks": [
+    0,
+    0.5,
+    1
+  ]
+}

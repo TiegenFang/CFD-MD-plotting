@@ -1,0 +1,30 @@
+{
+  "profile": "paper",
+  "synthetic": true,
+  "formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "kind": "line",
+  "data": "line.csv",
+  "x": "time",
+  "y": "response",
+  "group": "model",
+  "xlabel": "$t/t_0$",
+  "ylabel": "$I/I_0$",
+  "output": "../previews/line",
+  "markers": true,
+  "markevery": 8,
+  "legend_loc": "lower right",
+  "uncertainty": {
+    "lower": "lower",
+    "upper": "upper",
+    "definition": "Synthetic fixed envelope, not a statistical CI",
+    "display": "band"
+  },
+  "color_encoding": {
+    "mode": "categorical",
+    "palette": "muted"
+  }
+}

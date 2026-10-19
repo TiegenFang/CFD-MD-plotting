@@ -1,0 +1,26 @@
+{
+  "upstream": "callumrollo/cmcrameri",
+  "upstream_readme_basis": "Scientific colour maps 8.0",
+  "retrieved_on": "2026-10-19",
+  "license": "MIT; see LICENSE.txt",
+  "tables": {
+    "oslo": {
+      "url": "https://raw.githubusercontent.com/callumrollo/cmcrameri/main/cmcrameri/cmaps/oslo.txt",
+      "sha256": "4e29e907d1a07e05481ee6856efe4b5266d85f89eea8c82affde764aacaf1f89",
+      "shape": [
+        256,
+        3
+      ],
+      "modifications": "None to RGB samples. A requested _r reverses the lookup order."
+    },
+    "vik": {
+      "url": "https://raw.githubusercontent.com/callumrollo/cmcrameri/main/cmcrameri/cmaps/vik.txt",
+      "sha256": "60c2abfbffdfd9e7567cfeea1387bfe270eb036efe7262fdd7bf713058bacae2",
+      "shape": [
+        256,
+        3
+      ],
+      "modifications": "None to RGB samples. A requested _r reverses the lookup order."
+    }
+  }
+}

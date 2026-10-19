@@ -1,0 +1,5 @@
+[line] $I/I_0$.
+Uncertainty: Synthetic fixed envelope, not a statistical CI.
+Transformations: none in renderer.
+DATA ARE SYNTHETIC (illustration only).
+Source: line.csv.

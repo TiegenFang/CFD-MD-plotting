@@ -1,0 +1,9 @@
+# Core environment only. Optional scientific backends remain separate.
+# Bounds indicate intended API support, not a claim that all versions were tested.
+numpy>=1.24
+matplotlib>=3.8
+cmcrameri>=1.8
+
+# optional
+tol-colors>=2.0
+colorspacious>=1.1

@@ -1,0 +1,5 @@
+[bar] $Q/Q_0$.
+Uncertainty: Synthetic bounds, not an estimated CI.
+Transformations: none in renderer.
+DATA ARE SYNTHETIC (illustration only).
+Source: bars.csv.

@@ -1,0 +1,25 @@
+{
+  "profile": "paper",
+  "synthetic": true,
+  "formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "kind": "scatter",
+  "data": "scatter.csv",
+  "x": "x",
+  "y": "y",
+  "group": "case",
+  "xlabel": "$x/x_0$",
+  "ylabel": "$y/y_0$",
+  "output": "../previews/scatter_soft_filled",
+  "legend_loc": "upper left",
+  "color_encoding": {
+    "mode": "categorical",
+    "palette": "muted"
+  },
+  "scatter": {
+    "preset": "soft-filled"
+  }
+}

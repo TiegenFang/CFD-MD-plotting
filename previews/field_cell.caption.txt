@@ -1,0 +1,6 @@
+[field] $s/s_0$.
+Colour: $s/s_0$ (cmc.oslo_r, Normalize), limits [0, 1] dimensionless.
+226 cells masked (Synthetic rectangle with an explicitly masked circular hole. No CFD/MD inference.).
+Display: cell-constant, no interpolation.
+DATA ARE SYNTHETIC (illustration only).
+Source: make_demo.py synthetic analytic field.

@@ -1,0 +1,114 @@
+{
+  "kit_version": "1.0.0",
+  "profile": "paper",
+  "medium": "paper",
+  "font_requested": "Arial",
+  "font_resolved": "Liberation Sans",
+  "font_fallback_used": true,
+  "math_fallback": "stixsans",
+  "font_note": "Math glyph fallback and SVG viewer substitution need visual review.",
+  "size_mm": [
+    89.0,
+    53.69999999999999
+  ],
+  "raster_dpi": 450,
+  "versions": {
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2",
+    "cmcrameri": "1.10"
+  },
+  "axis_style": {
+    "frame": "box",
+    "tick_direction": "in",
+    "mirror_ticks": true,
+    "minor_ticks": true,
+    "major_intervals": 5,
+    "label_top": false,
+    "label_right": false,
+    "legend_frame": true
+  },
+  "categorical_palette": "tol-bright",
+  "theme_sha256": "db9a3db7264c46e6aa18a66da7abd06ac0a44b2a45a5e2d4d5ed625bdd3ef858",
+  "outputs": [
+    "field_cell.pdf",
+    "field_cell.svg",
+    "field_cell.png"
+  ],
+  "file_bytes": {
+    "field_cell.pdf": 32517,
+    "field_cell.svg": 55339,
+    "field_cell.png": 71910
+  },
+  "provenance": {
+    "source_id": "make_demo.py synthetic analytic field",
+    "config": {
+      "profile": "paper",
+      "synthetic": true,
+      "formats": [
+        "pdf",
+        "svg",
+        "png"
+      ],
+      "source_id": "make_demo.py synthetic analytic field",
+      "grid": "rectilinear",
+      "units": "dimensionless",
+      "coordinate_units": "dimensionless",
+      "domain_description": "Synthetic rectangle with an explicitly masked circular hole. No CFD/MD inference.",
+      "xlabel": "$x/\\ell_0$",
+      "ylabel": "$z/\\ell_0$",
+      "height_mm": 52,
+      "colorbar_label": "$s/s_0$",
+      "data": "field_cell.npz",
+      "association": "cell",
+      "method": "pcolormesh",
+      "limits": [
+        0,
+        1
+      ],
+      "cmap": "cmc.oslo_r",
+      "output": "../previews/field_cell",
+      "ticks": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "field_statistics": {
+      "n_total": 8000,
+      "n_valid": 7774,
+      "n_masked": 226,
+      "data_min": 2.0713415912331744e-06,
+      "data_max": 0.9992243213029718,
+      "below_range": 0,
+      "above_range": 0,
+      "clipped_fraction": 0.0,
+      "vmin": 0.0,
+      "vmax": 1.0,
+      "extend": "neither",
+      "normalization": "Normalize"
+    },
+    "cmap": "cmc.oslo_r",
+    "cmap_source": {
+      "name": "oslo",
+      "provider": "archived cmcrameri RGB table",
+      "table_sha256": "4e29e907d1a07e05481ee6856efe4b5266d85f89eea8c82affde764aacaf1f89",
+      "source_url": "https://raw.githubusercontent.com/callumrollo/cmcrameri/main/cmcrameri/cmaps/oslo.txt",
+      "reversed": true
+    },
+    "interpolation": "cell-constant, no interpolation",
+    "geometry_mask": "Synthetic rectangle with an explicitly masked circular hole. No CFD/MD inference.",
+    "synthetic": true,
+    "overlays": {
+      "streamlines": null,
+      "zoom": null,
+      "boundary": true
+    }
+  },
+  "qa": {
+    "blocking": "passed",
+    "non_blocking": [],
+    "visual_review": "not automated",
+    "scientific_validation": "not implied",
+    "journal_compliance": "not assessed"
+  }
+}

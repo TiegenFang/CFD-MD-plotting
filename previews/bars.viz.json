@@ -1,0 +1,132 @@
+{
+  "kit_version": "1.0.0",
+  "profile": "paper",
+  "medium": "paper",
+  "font_requested": "Arial",
+  "font_resolved": "Liberation Sans",
+  "font_fallback_used": true,
+  "math_fallback": "stixsans",
+  "font_note": "Math glyph fallback and SVG viewer substitution need visual review.",
+  "size_mm": [
+    89.0,
+    65.99999999999999
+  ],
+  "raster_dpi": 450,
+  "versions": {
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2",
+    "cmcrameri": "1.10"
+  },
+  "axis_style": {
+    "frame": "box",
+    "tick_direction": "in",
+    "mirror_ticks": true,
+    "minor_ticks": true,
+    "major_intervals": 5,
+    "label_top": false,
+    "label_right": false,
+    "legend_frame": true
+  },
+  "categorical_palette": "tol-bright",
+  "theme_sha256": "db9a3db7264c46e6aa18a66da7abd06ac0a44b2a45a5e2d4d5ed625bdd3ef858",
+  "outputs": [
+    "bars.pdf",
+    "bars.svg",
+    "bars.png"
+  ],
+  "file_bytes": {
+    "bars.pdf": 16344,
+    "bars.svg": 19389,
+    "bars.png": 58861
+  },
+  "provenance": {
+    "input": "bars.csv",
+    "input_sha256": "829f745fe4a86f9410e8b125b734d5e2abc7cab2bcad7dc3b0eba0c0c86c2a7b",
+    "config": {
+      "profile": "paper",
+      "synthetic": true,
+      "formats": [
+        "pdf",
+        "svg",
+        "png"
+      ],
+      "kind": "bar",
+      "data": "bars.csv",
+      "x": "mode",
+      "y": "response",
+      "group": "model",
+      "xlabel": "Operating mode",
+      "ylabel": "$Q/Q_0$",
+      "output": "../previews/bars",
+      "ylim": [
+        0,
+        0.85
+      ],
+      "legend_loc": "upper left",
+      "legend_columns": 3,
+      "uncertainty": {
+        "lower": "lower",
+        "upper": "upper",
+        "definition": "Synthetic bounds, not an estimated CI"
+      },
+      "color_encoding": {
+        "mode": "categorical",
+        "palette": "muted"
+      },
+      "legend_bbox": [
+        0,
+        1.15
+      ]
+    },
+    "row_counts": {
+      "Model A": {
+        "rows": 3,
+        "missing_y": 0
+      },
+      "Model B": {
+        "rows": 3,
+        "missing_y": 0
+      },
+      "Model C": {
+        "rows": 3,
+        "missing_y": 0
+      }
+    },
+    "uncertainty": {
+      "lower": "lower",
+      "upper": "upper",
+      "definition": "Synthetic bounds, not an estimated CI"
+    },
+    "transformations": "none in renderer",
+    "color_encoding": {
+      "mode": "categorical",
+      "palette": "muted"
+    },
+    "synthetic": true,
+    "resolved_styles": {
+      "Model A": {
+        "color": "#5B7C99",
+        "marker": "o",
+        "linestyle": "-"
+      },
+      "Model B": {
+        "color": "#B67B6B",
+        "marker": "s",
+        "linestyle": "--"
+      },
+      "Model C": {
+        "color": "#729483",
+        "marker": "^",
+        "linestyle": "-."
+      }
+    },
+    "scatter_preset": null
+  },
+  "qa": {
+    "blocking": "passed",
+    "non_blocking": [],
+    "visual_review": "not automated",
+    "scientific_validation": "not implied",
+    "journal_compliance": "not assessed"
+  }
+}

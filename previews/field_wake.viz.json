@@ -1,0 +1,154 @@
+{
+  "kit_version": "1.0.0",
+  "profile": "paper",
+  "medium": "paper",
+  "font_requested": "Arial",
+  "font_resolved": "Liberation Sans",
+  "font_fallback_used": true,
+  "math_fallback": "stixsans",
+  "font_note": "Math glyph fallback and SVG viewer substitution need visual review.",
+  "size_mm": [
+    119.99999999999999,
+    62.75
+  ],
+  "raster_dpi": 450,
+  "versions": {
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2",
+    "cmcrameri": "1.10"
+  },
+  "axis_style": {
+    "frame": "box",
+    "tick_direction": "in",
+    "mirror_ticks": true,
+    "minor_ticks": true,
+    "major_intervals": 5,
+    "label_top": false,
+    "label_right": false,
+    "legend_frame": true
+  },
+  "categorical_palette": "tol-bright",
+  "theme_sha256": "db9a3db7264c46e6aa18a66da7abd06ac0a44b2a45a5e2d4d5ed625bdd3ef858",
+  "outputs": [
+    "field_wake.pdf",
+    "field_wake.png"
+  ],
+  "file_bytes": {
+    "field_wake.pdf": 49220,
+    "field_wake.png": 237817
+  },
+  "provenance": {
+    "source_id": "make_examples.py synthetic potential flow + Lamb-Oseen street",
+    "config": {
+      "profile": "paper",
+      "synthetic": true,
+      "formats": [
+        "pdf",
+        "png"
+      ],
+      "source_id": "make_examples.py synthetic potential flow + Lamb-Oseen street",
+      "grid": "rectilinear",
+      "association": "cell",
+      "method": "pcolormesh",
+      "data": "field_wake.npz",
+      "units": "U_inf/D",
+      "coordinate_units": "D",
+      "domain_description": "Rectangle with the cylinder interior (NaN) masked; synthetic, no CFD inference.",
+      "xlabel": "$x/D$",
+      "ylabel": "$y/D$",
+      "colorbar_label": "$\\omega_z D/U_\\infty$",
+      "scale": "symmetric",
+      "limits": [
+        -12,
+        12
+      ],
+      "reference_description": "zero spanwise vorticity",
+      "width_mm": 120,
+      "streamlines": {
+        "u": "u",
+        "v": "v",
+        "x": "xc",
+        "y": "yc",
+        "seeds": "inlet",
+        "density": 1.0
+      },
+      "zoom": {
+        "xlim": [
+          0.6,
+          2.2
+        ],
+        "ylim": [
+          -0.45,
+          0.45
+        ],
+        "width_mm": 24,
+        "anchor": "upper right"
+      },
+      "halo_text": [
+        {
+          "x": 4.42,
+          "y": -1.42,
+          "text": "synthetic data",
+          "ha": "right"
+        }
+      ],
+      "output": "../previews/field_wake"
+    },
+    "field_statistics": {
+      "n_total": 28800,
+      "n_valid": 27536,
+      "n_masked": 1264,
+      "data_min": -26.22687994664243,
+      "data_max": 47.918305990566004,
+      "below_range": 106,
+      "above_range": 170,
+      "clipped_fraction": 0.010023242300987797,
+      "vmin": -12.0,
+      "vmax": 12.0,
+      "extend": "both",
+      "normalization": "Normalize"
+    },
+    "cmap": "signed",
+    "cmap_source": {
+      "name": "vik",
+      "provider": "archived cmcrameri RGB table",
+      "table_sha256": "60c2abfbffdfd9e7567cfeea1387bfe270eb036efe7262fdd7bf713058bacae2",
+      "source_url": "https://raw.githubusercontent.com/callumrollo/cmcrameri/main/cmcrameri/cmaps/vik.txt",
+      "role": "signed",
+      "white_center": true
+    },
+    "interpolation": "cell-constant, no interpolation",
+    "geometry_mask": "Rectangle with the cylinder interior (NaN) masked; synthetic, no CFD inference.",
+    "synthetic": true,
+    "overlays": {
+      "streamlines": {
+        "u": "u",
+        "v": "v",
+        "x": "xc",
+        "y": "yc",
+        "seeds": "inlet",
+        "density": 1.0
+      },
+      "zoom": {
+        "xlim": [
+          0.6,
+          2.2
+        ],
+        "ylim": [
+          -0.45,
+          0.45
+        ],
+        "width_mm": 24,
+        "anchor": "upper right"
+      },
+      "boundary": true
+    }
+  },
+  "qa": {
+    "blocking": "passed",
+    "non_blocking": [],
+    "visual_review": "not automated",
+    "scientific_validation": "not implied",
+    "journal_compliance": "not assessed"
+  }
+}

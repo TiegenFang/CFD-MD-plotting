@@ -1,0 +1,55 @@
+{
+  "profile": "paper",
+  "synthetic": true,
+  "formats": [
+    "pdf",
+    "png"
+  ],
+  "source_id": "make_examples.py synthetic potential flow + Lamb-Oseen street",
+  "grid": "rectilinear",
+  "association": "cell",
+  "method": "pcolormesh",
+  "data": "field_wake.npz",
+  "units": "U_inf/D",
+  "coordinate_units": "D",
+  "domain_description": "Rectangle with the cylinder interior (NaN) masked; synthetic, no CFD inference.",
+  "xlabel": "$x/D$",
+  "ylabel": "$y/D$",
+  "colorbar_label": "$\\omega_z D/U_\\infty$",
+  "scale": "symmetric",
+  "limits": [
+    -12,
+    12
+  ],
+  "reference_description": "zero spanwise vorticity",
+  "width_mm": 120,
+  "streamlines": {
+    "u": "u",
+    "v": "v",
+    "x": "xc",
+    "y": "yc",
+    "seeds": "inlet",
+    "density": 1.0
+  },
+  "zoom": {
+    "xlim": [
+      0.6,
+      2.2
+    ],
+    "ylim": [
+      -0.45,
+      0.45
+    ],
+    "width_mm": 24,
+    "anchor": "upper right"
+  },
+  "halo_text": [
+    {
+      "x": 4.42,
+      "y": -1.42,
+      "text": "synthetic data",
+      "ha": "right"
+    }
+  ],
+  "output": "../previews/field_wake"
+}

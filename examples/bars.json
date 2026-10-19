@@ -1,0 +1,36 @@
+{
+  "profile": "paper",
+  "synthetic": true,
+  "formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "kind": "bar",
+  "data": "bars.csv",
+  "x": "mode",
+  "y": "response",
+  "group": "model",
+  "xlabel": "Operating mode",
+  "ylabel": "$Q/Q_0$",
+  "output": "../previews/bars",
+  "ylim": [
+    0,
+    0.85
+  ],
+  "legend_loc": "upper left",
+  "legend_columns": 3,
+  "uncertainty": {
+    "lower": "lower",
+    "upper": "upper",
+    "definition": "Synthetic bounds, not an estimated CI"
+  },
+  "color_encoding": {
+    "mode": "categorical",
+    "palette": "muted"
+  },
+  "legend_bbox": [
+    0,
+    1.15
+  ]
+}

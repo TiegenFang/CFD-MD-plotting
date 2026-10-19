@@ -1,0 +1,46 @@
+{
+  "profile": "paper",
+  "synthetic": true,
+  "formats": [
+    "pdf",
+    "png"
+  ],
+  "kind": "multiples",
+  "data": "multiples.csv",
+  "x": "t",
+  "y": "cd",
+  "group": "case",
+  "xlabel": "$t\\,U/D$",
+  "ylabel": "$C_d$",
+  "ncols": 3,
+  "cell_aspect": 0.55,
+  "ylim": [
+    0.9,
+    1.9
+  ],
+  "width_mm": 183,
+  "output": "../previews/multiples",
+  "color_encoding": {
+    "mode": "ordered",
+    "cmap": "cmc.batlow",
+    "segment": [
+      0.0,
+      0.72
+    ],
+    "limits": [
+      40,
+      1000
+    ],
+    "values": {
+      "Re=40": 40,
+      "Re=60": 60,
+      "Re=80": 80,
+      "Re=100": 100,
+      "Re=150": 150,
+      "Re=200": 200,
+      "Re=300": 300,
+      "Re=500": 500,
+      "Re=1000": 1000
+    }
+  }
+}

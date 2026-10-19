@@ -1,0 +1,7 @@
+[field] $s/s_0$.
+Colour: $s/s_0$ (cmc.vik, Normalize), limits [-1, 1] dimensionless.
+Reference at the diverging centre: Analytic zero of a synthetic signed scalar.
+189 cells masked (Synthetic rectangle with an explicitly masked circular hole. No CFD/MD inference.).
+Display: native point contour interpolation.
+DATA ARE SYNTHETIC (illustration only).
+Source: make_demo.py synthetic analytic field.

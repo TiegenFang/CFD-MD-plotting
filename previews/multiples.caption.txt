@@ -1,0 +1,4 @@
+[multiples] $C_d$.
+Transformations: none in renderer.
+DATA ARE SYNTHETIC (illustration only).
+Source: multiples.csv.

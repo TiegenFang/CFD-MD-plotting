@@ -1,0 +1,95 @@
+{
+  "schema_version": 3,
+  "font": {
+    "preferred": "Arial",
+    "fallbacks": ["Liberation Sans", "Arimo", "Nimbus Sans", "DejaVu Sans"],
+    "metric_compatible": ["Liberation Sans", "Arimo", "Nimbus Sans", "Helvetica"],
+    "math_fallback": "stixsans",
+    "alt_stack": ["Roboto Condensed", "Roboto"],
+    "cjk": ["Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", "SimHei", "WenQuanYi Micro Hei"]
+  },
+  "widths_mm": {
+    "single": 89.0,
+    "one_half": 120.0,
+    "double": 183.0,
+    "slide": 254.0,
+    "poster": 400.0
+  },
+  "media": {
+    "paper": {
+      "base": 7.0, "tick": 6.5, "legend": 6.5, "annot": 6.0, "title": 7.0, "panel": 9.0,
+      "spine": 0.6, "line": 1.1, "marker": 3.2, "tick_major": 2.6, "tick_minor": 1.5,
+      "minor": true, "min_font": 5.0
+    },
+    "slide": {
+      "base": 14.0, "tick": 12.0, "legend": 12.0, "annot": 11.0, "title": 14.0, "panel": 18.0,
+      "spine": 1.2, "line": 2.4, "marker": 7.0, "tick_major": 5.0, "tick_minor": 3.0,
+      "minor": false, "min_font": 10.0
+    },
+    "poster": {
+      "base": 20.0, "tick": 18.0, "legend": 18.0, "annot": 16.0, "title": 20.0, "panel": 26.0,
+      "spine": 1.8, "line": 3.4, "marker": 10.0, "tick_major": 7.0, "tick_minor": 4.0,
+      "minor": false, "min_font": 14.0
+    }
+  },
+  "profiles": {
+    "paper": {"medium": "paper", "width_mm": 89.0, "height_mm": 66.0},
+    "paper-wide": {"medium": "paper", "width_mm": 183.0, "height_mm": 80.0},
+    "presentation": {"medium": "slide", "width_mm": 160.0, "height_mm": 110.0},
+    "slide": {"medium": "slide", "width_mm": 254.0, "height_mm": 143.0},
+    "poster": {"medium": "poster", "width_mm": 400.0, "height_mm": 280.0}
+  },
+  "colors": {
+    "categorical": "tol-bright",
+    "reference": "#555555",
+    "outline": "#000000",
+    "missing": "#DDDDDD",
+    "sequential": "magnitude",
+    "diverging": "signed",
+    "cyclic": "phase",
+    "ordered": {
+      "cmap": "cmc.oslo_r",
+      "segment": [0.35, 0.82]
+    },
+    "neutrals": {
+      "ink": "#000000",
+      "grey_dark": "#555555",
+      "grey_mid": "#999999",
+      "grey": "#BBBBBB",
+      "grey_pale": "#DDDDDD"
+    }
+  },
+  "markers": ["o", "s", "^", "D", "v", "P"],
+  "line_styles": ["-", "--", "-.", ":"],
+  "export": {
+    "formats": ["pdf", "svg", "png"],
+    "dpi": 450,
+    "pdf_size_warn_mb": 8.0
+  },
+  "palettes": {
+    "muted": ["#5B7C99", "#B67B6B", "#729483", "#9383A8", "#A38D5D", "#6F969B"],
+    "cool": ["#587A93", "#6B9395", "#8F87A5", "#889475", "#9B7E87", "#738795"],
+    "earth": ["#647F83", "#B18570", "#879178", "#9A7D84", "#A58E60", "#767D98"],
+    "okabe-ito": ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9"]
+  },
+  "axes": {
+    "frame": "box",
+    "tick_direction": "in",
+    "mirror_ticks": true,
+    "minor_ticks": true,
+    "major_intervals": 5,
+    "label_top": false,
+    "label_right": false,
+    "legend_frame": true
+  },
+  "scatter": {
+    "default": "hollow",
+    "presets": {
+      "hollow": {"area_scale": 1.12, "face": "none", "edge": "series", "edge_width": 0.8, "alpha": 1.0},
+      "soft-filled": {"area_scale": 1.0, "face": "tint", "tint_fraction": 0.65, "edge": "series", "edge_width": 0.5, "alpha": 1.0},
+      "dense": {"area_scale": 0.32, "face": "series", "edge": "none", "edge_width": 0.0, "alpha": 0.4}
+    },
+    "alpha_floor": 0.01,
+    "hexbin_above_n": 20000
+  }
+}

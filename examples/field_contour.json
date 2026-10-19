@@ -1,0 +1,57 @@
+{
+  "profile": "paper",
+  "synthetic": true,
+  "formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "source_id": "make_demo.py synthetic analytic field",
+  "grid": "rectilinear",
+  "units": "dimensionless",
+  "coordinate_units": "dimensionless",
+  "domain_description": "Synthetic rectangle with an explicitly masked circular hole. No CFD/MD inference.",
+  "xlabel": "$x/\\ell_0$",
+  "ylabel": "$z/\\ell_0$",
+  "height_mm": 52,
+  "colorbar_label": "$s/s_0$",
+  "data": "field_contour.npz",
+  "association": "point",
+  "method": "contourf",
+  "scale": "symmetric",
+  "reference_description": "Analytic zero of a synthetic signed scalar",
+  "limits": [
+    -1,
+    1
+  ],
+  "cmap": "cmc.vik",
+  "levels": [
+    -1.0,
+    -0.9,
+    -0.8,
+    -0.7,
+    -0.6,
+    -0.5,
+    -0.3999999999999999,
+    -0.29999999999999993,
+    -0.19999999999999996,
+    -0.09999999999999998,
+    0.0,
+    0.10000000000000009,
+    0.20000000000000018,
+    0.30000000000000004,
+    0.40000000000000013,
+    0.5,
+    0.6000000000000001,
+    0.7000000000000002,
+    0.8,
+    0.9000000000000001,
+    1.0
+  ],
+  "output": "../previews/field_contour",
+  "ticks": [
+    -1,
+    0,
+    1
+  ]
+}

@@ -1,0 +1,4 @@
+[scatter] $y/y_0$.
+Transformations: none in renderer.
+DATA ARE SYNTHETIC (illustration only).
+Source: scatter.csv.

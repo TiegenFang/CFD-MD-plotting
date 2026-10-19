@@ -1,0 +1,217 @@
+{
+  "kit_version": "1.0.0",
+  "profile": "paper",
+  "medium": "paper",
+  "font_requested": "Arial",
+  "font_resolved": "Liberation Sans",
+  "font_fallback_used": true,
+  "math_fallback": "stixsans",
+  "font_note": "Math glyph fallback and SVG viewer substitution need visual review.",
+  "size_mm": [
+    56.5,
+    95.0
+  ],
+  "raster_dpi": 450,
+  "versions": {
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2",
+    "cmcrameri": "1.10"
+  },
+  "axis_style": {
+    "frame": "box",
+    "tick_direction": "in",
+    "mirror_ticks": true,
+    "minor_ticks": true,
+    "major_intervals": 5,
+    "label_top": false,
+    "label_right": false,
+    "legend_frame": true
+  },
+  "categorical_palette": "tol-bright",
+  "theme_sha256": "db9a3db7264c46e6aa18a66da7abd06ac0a44b2a45a5e2d4d5ed625bdd3ef858",
+  "outputs": [
+    "rz_charge_restyled.pdf",
+    "rz_charge_restyled.png",
+    "rz_charge_restyled.svg"
+  ],
+  "file_bytes": {
+    "rz_charge_restyled.pdf": 269291,
+    "rz_charge_restyled.png": 344960,
+    "rz_charge_restyled.svg": 395600
+  },
+  "provenance": {
+    "source_id": "synthetic demo",
+    "restyle": {
+      "mode": "harvest",
+      "original_script": "examples/original_rz_charge.py",
+      "original_sha256": "e2adbb088a1c017b12189653076ff0371eddadf4bb718b4829c15cdd8bc1056e",
+      "frozen": [
+        "array values, masks and coordinates",
+        "colour map (unless the user opts in)",
+        "norm: vmin / vmax / centre / extend",
+        "interpolation and smoothing",
+        "axis limits and scales",
+        "axis, colour-bar and annotation text",
+        "contour geometry",
+        "units (no Angstrom -> nm conversion unless asked)"
+      ],
+      "presentation": [
+        "canvas size and margins",
+        "fonts and sizes",
+        "frame, tick style and tick count",
+        "colour-bar geometry",
+        "line widths and halos",
+        "panel labels",
+        "export formats / dpi"
+      ],
+      "opt_in_changes": [
+        "cmap: RdBu_r -> vik_white (user opt-in)"
+      ],
+      "frozen_layer_identical": true,
+      "intake": {
+        "confirmed": true,
+        "answers_source": "default-unattended",
+        "improve": "typography+layout",
+        "keep_frozen": true,
+        "target": "paper, single column"
+      },
+      "original_facts": {
+        "panels": [
+          {
+            "xlim": [
+              0.0,
+              75.0
+            ],
+            "ylim": [
+              0.0,
+              200.0
+            ],
+            "xlabel": "r (Å)",
+            "ylabel": "$z_{rel}$ (Å)",
+            "aspect": "1.0",
+            "colorbar": {
+              "label": "Liquid charge density (e nm$^{-3}$)",
+              "extend": "both",
+              "orientation": "vertical",
+              "ticks": [
+                -3.0,
+                -2.0,
+                -1.0,
+                0.0,
+                1.0,
+                2.0,
+                3.0
+              ]
+            },
+            "layers": [
+              {
+                "kind": "image",
+                "cmap": "RdBu_r",
+                "cmap_is_diverging": true,
+                "norm": {
+                  "type": "Normalize",
+                  "vmin": -2.7573725955149513,
+                  "vmax": 2.7573725955149513
+                },
+                "shape": [
+                  80,
+                  30
+                ],
+                "masked_or_nan_fraction": 0.0,
+                "fraction_beyond_limits": 0.025,
+                "data_range": [
+                  -5.866863198441849,
+                  6.028830344945037
+                ],
+                "interpolation": "bilinear",
+                "extent": [
+                  0.0,
+                  75.0,
+                  0.0,
+                  200.0
+                ]
+              },
+              {
+                "kind": "contour"
+              },
+              {
+                "kind": "text",
+                "text": "0.5 $\\rho_{ref}$"
+              }
+            ]
+          }
+        ],
+        "original_figure_mm": [
+          76.2,
+          152.4
+        ]
+      },
+      "fingerprint": [
+        {
+          "xlim": [
+            0.0,
+            75.0
+          ],
+          "ylim": [
+            0.0,
+            200.0
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "xlabel": "r (Å)",
+          "ylabel": "$z_{rel}$ (Å)",
+          "title": "",
+          "layers": [
+            {
+              "kind": "image",
+              "values": "ecce063a4b7cdf6e",
+              "extent": [
+                0.0,
+                75.0,
+                0.0,
+                200.0
+              ],
+              "origin": "lower",
+              "interpolation": "bilinear",
+              "norm": [
+                "Normalize",
+                -2.7573725955149513,
+                2.7573725955149513,
+                null,
+                null
+              ],
+              "cmap": "37530790c942"
+            },
+            {
+              "kind": "contour",
+              "geometry": "0026bd0b0d8c1554",
+              "levels": [
+                0.5
+              ]
+            },
+            {
+              "kind": "text",
+              "s": "0.5 $\\rho_{ref}$",
+              "xy": [
+                5.0,
+                100.0
+              ]
+            }
+          ],
+          "colorbar": {
+            "label": "Liquid charge density (e nm$^{-3}$)",
+            "extend": "both"
+          }
+        }
+      ],
+      "original_files_written": false
+    }
+  },
+  "qa": {
+    "blocking": "passed",
+    "non_blocking": [],
+    "visual_review": "not automated",
+    "scientific_validation": "not implied",
+    "journal_compliance": "not assessed"
+  }
+}

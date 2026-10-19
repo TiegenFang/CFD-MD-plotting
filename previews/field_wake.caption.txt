@@ -1,0 +1,10 @@
+[field] $\omega_z D/U_\infty$.
+Colour: $\omega_z D/U_\infty$ (signed, Normalize), limits [-12, 12] U_inf/D.
+1.00% of valid cells lie outside the limits (colour-bar extend: both).
+Reference at the diverging centre: zero spanwise vorticity.
+1264 cells masked (Rectangle with the cylinder interior (NaN) masked; synthetic, no CFD inference.).
+Display: cell-constant, no interpolation.
+Streamlines: seeded 'inlet' on the regular grid; integral curves, spacing carries no magnitude information.
+Inset magnifies x in [0.6, 2.2], y in [-0.45, 0.45] with the same colour mapping.
+DATA ARE SYNTHETIC (illustration only).
+Source: make_examples.py synthetic potential flow + Lamb-Oseen street.
