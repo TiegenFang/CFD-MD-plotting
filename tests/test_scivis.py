@@ -551,3 +551,39 @@ def test_assume_defaults_is_recorded():
         assert side["provenance"]["restyle"]["original_facts"]["panels"][0]["layers"][0]["cmap"] == "RdBu_r"
     finally:
         shutil.rmtree(root / "restyle_out", ignore_errors=True)
+
+
+def test_vlim_is_opt_in_and_recorded():
+    from scivis import restyle, layout
+    from scivis.theme import style_context
+    old = restyle.harvest(_original_fig().figs[-1])
+    with style_context("paper", allow_font_fallback=True):
+        c = layout.make_canvas("single", cell_aspect=restyle.panel_aspect(old[0]), margins=(11.5, 9, 15, 6))
+        r = restyle.replay(old[0], c.ax(0, 0, field=True), vlim=(-0.5, 0.5))
+    assert any("colour limits" in x and "user opt-in" in x for x in r["changes"])
+    assert restyle.compare(old, restyle.harvest(c.fig))                      # frozen audit sees it ...
+    assert not restyle.compare(old, restyle.harvest(c.fig), allow=("norm",))  # ... unless allowed
+
+
+def test_template_size_mode_dpi_and_frames():
+    import shutil
+    root = Path(__file__).resolve().parents[1]
+    tdir = root / "skills" / "sim-field" / "templates"
+    src = (tdir / "restyle_harvest_template.py").read_text()
+    src = src.replace('SIZE_MODE = "compact"', 'SIZE_MODE = "strict-89"').replace("DPI = 600", "DPI = 300")
+    src = src.replace('FRAMES = [{"name": "", "argv": []}]',
+                      'FRAMES = [{"name": "a", "argv": []}, {"name": "b", "argv": []}]')
+    src = src.replace('OUT_DIR = Path("restyle_out")', 'OUT_DIR = Path("restyle_out_test")')
+    tmp = tdir / "_tmp_restyle_modes.py"
+    tmp.write_text(src)
+    try:
+        r = _run_template("_tmp_restyle_modes.py", "--assume-defaults")
+        assert r.returncode == 0, r.stderr[-500:]
+        out = root / "restyle_out_test"
+        for n in ("a", "b"):
+            side = json.loads((out / f"{n}.viz.json").read_text())
+            assert abs(side["size_mm"][0] - 89.0) < 0.5 and side["raster_dpi"] == 300
+            assert side["provenance"]["restyle"]["size_mode"] == "strict-89"
+    finally:
+        tmp.unlink(missing_ok=True)
+        shutil.rmtree(root / "restyle_out_test", ignore_errors=True)

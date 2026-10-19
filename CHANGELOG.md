@@ -23,6 +23,9 @@ First public release of the two skills with a shared styling, colour and layout 
 - Restyle mode for existing figures: `scivis.restyle` (run the original code with saving blocked, harvest artists,
   replay on the shared layout, audit the frozen layer), two templates, an intake gate with recorded answers, and the
   protocol in `restyle-mode.md`. Standing decision: signed fields use vik with a white centre.
+- Harvest template options: `SIZE_MODE` (compact / strict-89 / presentation), `DPI` (600), `FRAMES` (batch of existing
+  figures into a new directory), opt-in `vlim` colour range (recorded, audited). Intake questions `restyle_scope`,
+  `restyle_size`, `restyle_frames`.
 
 ### Tooling
 - 57 tests, `verify.py`, `install.py` (dry run by default), `export_mplstyle.py`, `export_lut.py`, rendered previews.

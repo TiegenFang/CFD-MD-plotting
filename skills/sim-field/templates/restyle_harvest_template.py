@@ -26,13 +26,21 @@ from pathlib import Path
 
 # ============================== EDIT ==========================================
 ORIGINAL_SCRIPT = Path(r"examples/original_rz_charge.py")   # the user's plotting script
-ORIGINAL_ARGV = []                                           # its command-line arguments
 FIGURE_INDEX = -1                                            # which saved figure (last by default)
-OUT_STEM = Path("restyle_out/rz_charge_restyled")            # new files only; never the original path
+# One entry per figure to restyle: a single representative frame, or every existing frame. "argv" are the
+# original script's own command-line arguments that select the frame; "name" is the output file stem
+# ("" = OUT_NAME). New files only, in OUT_DIR; the original path is never written.
+FRAMES = [{"name": "", "argv": []}]
+OUT_DIR = Path("restyle_out")
+OUT_NAME = "rz_charge_restyled"
 SOURCE_ID = "synthetic demo"                                 # data identity for the provenance
-WIDTH = "single"                      # single 89 | one_half 120 | double 183 | slide | poster | mm
-PROFILE = "paper"                     # paper | slide | poster
+# Size choice (intake question "size"):
+#   "compact"      paper figure, panel <= 80 mm tall: tall panels become NARROW figures (recommended)
+#   "strict-89"    exactly 89 mm wide, however tall the panel gets (type looks small on tall panels)
+#   "presentation" slide profile, 160 mm wide, panel <= 110 mm tall
+SIZE_MODE = "compact"
 FORMATS = ["pdf", "png", "svg"]
+DPI = 600
 # Anything listed here is CHANGED ON PURPOSE (ask the user first, then record it):
 OPT_IN = {
     # Standing decision (user, 2026-10-19): signed fields use vik with a white centre. "signed-if-diverging"
@@ -42,6 +50,7 @@ OPT_IN = {
     "labels": {},                     # e.g. {"xlabel": "$r$ (Å)", "ylabel": "$z_{rel}$ (Å)",
                                       #       "cbar": "$\\rho_q$ (e nm$^{-3}$)"}  typography only
     "keep_ticks": False,              # True keeps the original tick values
+    "vlim": None,                     # (vmin, vmax): change the colour range ONLY if the user asked (recorded)
 }
 # ---- INTAKE CONTRACT -------------------------------------------------------------------------------
 # The script refuses to render until this is confirmed. First run (confirmed=False) only PRINTS what the original
@@ -56,8 +65,6 @@ CONTRACT = {
     "target": "paper, single column",
 }
 CBAR_SIDE = "right"
-MAX_PANEL_HEIGHT_MM = None   # None: 80 mm paper / 110 slide / 200 poster. Tall panels become NARROW
-                             # figures (the type stays 7 pt, so it keeps the original's proportions).
 # ==============================================================================
 
 
@@ -75,6 +82,31 @@ def _find_scivis():
     raise SystemExit("scivis not found. Install sim-plot next to sim-field or set SCIVIS_PATH.")
 
 
+def _size_plan(mode):
+    """(profile, canvas width, max panel height in mm or None = no cap)."""
+    return {"compact": ("paper", "single", 80.0), "strict-89": ("paper", "single", None),
+            "presentation": ("slide", 160.0, 110.0)}[mode]
+
+
+def _run_original(restyle, argv):
+    saved = sys.argv
+    sys.argv = [str(ORIGINAL_SCRIPT)] + list(argv)
+    try:
+        with restyle.intercept_savefig() as got:
+            runpy.run_path(str(ORIGINAL_SCRIPT), run_name="__main__")
+    finally:
+        sys.argv = saved
+    if not got.figs:
+        raise SystemExit("The original script never called savefig; point ORIGINAL_SCRIPT at the plotting code "
+                         "or use restyle_field_template.py (FROZEN-block route).")
+    old = got.figs[FIGURE_INDEX]
+    specs = restyle.harvest(old)
+    if any(s.unsupported for s in specs):
+        raise SystemExit("Unsupported artists: " + "; ".join(u for s in specs for u in s.unsupported)
+                         + "\nUse restyle_field_template.py and paste the original data code verbatim.")
+    return old, specs
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--allow-font-fallback", action="store_true")
@@ -86,77 +118,73 @@ def main():
         CONTRACT.update(confirmed=True, answers_source="default-unattended")
     _find_scivis()
     import hashlib
+    global restyle
     from scivis import layout, restyle
     from scivis.theme import style_context
     from scivis.export import export_figure
 
-    # 1 -- run the original, never let it write its files
-    saved_argv = sys.argv
-    sys.argv = [str(ORIGINAL_SCRIPT)] + list(ORIGINAL_ARGV)
-    try:
-        with restyle.intercept_savefig() as got:
-            runpy.run_path(str(ORIGINAL_SCRIPT), run_name="__main__")
-    finally:
-        sys.argv = saved_argv
-    if not got.figs:
-        raise SystemExit("The original script never called savefig; point ORIGINAL_SCRIPT at the plotting code "
-                         "or use restyle_field_template.py (FROZEN-block route).")
-    old = got.figs[FIGURE_INDEX]
-    specs = restyle.harvest(old)
-    if any(s.unsupported for s in specs):
-        raise SystemExit("Unsupported artists: " + "; ".join(u for s in specs for u in s.unsupported)
-                         + "\nUse restyle_field_template.py and paste the original data code verbatim.")
-
-    # 1b -- intake gate: show what the original does, then stop until the user has confirmed the plan
-    facts = restyle.describe(specs, old)
+    # 1 -- intake gate: show what the original does (first frame), then stop until the user has confirmed
+    old0, specs0 = _run_original(restyle, FRAMES[0]["argv"])
+    facts = restyle.describe(specs0, old0)
     if not CONTRACT["confirmed"]:
-        print("INTAKE NOT CONFIRMED - nothing was rendered. The original does this:")
+        print("INTAKE NOT CONFIRMED - nothing was rendered. The original does this "
+              f"(first of {len(FRAMES)} frame(s)):")
         print(json.dumps(facts, indent=1, default=str))
-        print("Planned OPT_IN changes:", json.dumps(OPT_IN, default=str))
+        print("Planned OPT_IN changes:", json.dumps(OPT_IN, default=str), "| SIZE_MODE:", SIZE_MODE)
         print("Ask the user (AskUserQuestion; one batch, each with a recommended answer), then set CONTRACT "
               "confirmed=True/answers_source='user' and run again.")
         sys.exit(3)
 
-    # 2 -- rebuild on the scivis canvas (one row of panels, same data windows)
-    n = len(specs)
-    with style_context(PROFILE, allow_font_fallback=True if a.allow_font_fallback else None) as state:
-        k = state["base"] / 7.0
-        right = 15.0 * k if CBAR_SIDE == "right" else 3.0 * k   # 15 mm leaves room for a rotated long colour-bar label
-        margins = (11.5 * k, 9.0 * k, right, 6.0 * k)
-        aspect = restyle.panel_aspect(specs[0])
-        width = layout.fit_width(WIDTH, aspect, margins, MAX_PANEL_HEIGHT_MM) if n == 1 else WIDTH
-        c = layout.make_canvas(width, cell_aspect=aspect, ncols=n, margins=margins)
-        new_axes, changes = [], []
-        for i, sp in enumerate(specs):
-            ax = c.ax(0, i, field=True)
-            r = restyle.replay(sp, ax, cmap=OPT_IN["cmap"], keep_ticks=OPT_IN["keep_ticks"],
-                               labels=OPT_IN["labels"], cbar_kw={"loc": CBAR_SIDE})
-            changes += r["changes"]
-            new_axes.append(ax)
-        if n > 1:
-            layout.panel_labels(c.fig, new_axes)
+    profile, width_spec, max_h = _size_plan(SIZE_MODE)
+    outputs = []
+    for fi, frame in enumerate(FRAMES):
+        old, specs = (old0, specs0) if fi == 0 else _run_original(restyle, frame["argv"])
+        stem = OUT_DIR / (frame["name"] or OUT_NAME)
+        n = len(specs)
+        with style_context(profile, allow_font_fallback=True if a.allow_font_fallback else None) as state:
+            k = state["base"] / 7.0
+            right = 15.0 * k if CBAR_SIDE == "right" else 3.0 * k   # room for a rotated long colour-bar label
+            margins = (11.5 * k, 9.0 * k, right, 6.0 * k)
+            aspect = restyle.panel_aspect(specs[0])
+            width = width_spec
+            if n == 1 and max_h is not None:
+                width = layout.fit_width(width_spec, aspect, margins, max_h)
+            c = layout.make_canvas(width, cell_aspect=aspect, ncols=n, margins=margins)
+            new_axes, changes = [], []
+            for i, sp in enumerate(specs):
+                ax = c.ax(0, i, field=True)
+                r = restyle.replay(sp, ax, cmap=OPT_IN["cmap"], keep_ticks=OPT_IN["keep_ticks"],
+                                   labels=OPT_IN["labels"], vlim=OPT_IN.get("vlim"), cbar_kw={"loc": CBAR_SIDE})
+                changes += r["changes"]
+                new_axes.append(ax)
+            if n > 1:
+                layout.panel_labels(c.fig, new_axes)
 
-        # 3 -- frozen-layer audit: old figure vs new figure, same harvester on both
-        allow = tuple(k for k, v in (("cmap", OPT_IN["cmap"]), ("xlabel", OPT_IN["labels"].get("xlabel")),
-                                     ("ylabel", OPT_IN["labels"].get("ylabel")),
-                                     ("colorbar", OPT_IN["labels"].get("cbar"))) if v)
-        diffs = restyle.compare(specs, restyle.harvest(c.fig), allow=allow)
-        if diffs:
-            raise SystemExit("FROZEN LAYER CHANGED - not exporting:\n  " + "\n  ".join(diffs))
-
-        prov = {"source_id": SOURCE_ID,
-                "restyle": {"mode": "harvest", "original_script": str(ORIGINAL_SCRIPT),
-                            "original_sha256": hashlib.sha256(Path(ORIGINAL_SCRIPT).read_bytes()).hexdigest(),
-                            "frozen": list(restyle.FROZEN), "presentation": list(restyle.PRESENTATION),
-                            "opt_in_changes": changes or None, "frozen_layer_identical": True,
-                            "intake": dict(CONTRACT), "original_facts": json.loads(json.dumps(facts, default=str)),
-                            "fingerprint": json.loads(json.dumps(restyle.fingerprint(specs), default=str)),
-                            "original_files_written": False}}
-        rep = export_figure(c.fig, OUT_STEM, state, provenance=prov, formats=FORMATS,
-                            allow_overwrite=a.overwrite, kind="field")
-    review = restyle.side_by_side(old, c.fig, str(OUT_STEM) + ".before_after.png")
-    print(json.dumps({"outputs": rep["outputs"], "review": str(review), "opt_in_changes": changes,
-                      "frozen_layer_identical": True}, indent=1))
+            # 2 -- frozen-layer audit: old figure vs new figure, same harvester on both
+            allow = tuple(key for key, v in (("cmap", OPT_IN["cmap"]), ("norm", OPT_IN.get("vlim")),
+                                             ("xlabel", OPT_IN["labels"].get("xlabel")),
+                                             ("ylabel", OPT_IN["labels"].get("ylabel")),
+                                             ("colorbar", OPT_IN["labels"].get("cbar"))) if v)
+            diffs = restyle.compare(specs, restyle.harvest(c.fig), allow=allow)
+            if diffs:
+                raise SystemExit(f"FROZEN LAYER CHANGED in frame {frame['name'] or fi} - not exporting:\n  "
+                                 + "\n  ".join(diffs))
+            prov = {"source_id": SOURCE_ID,
+                    "restyle": {"mode": "harvest", "original_script": str(ORIGINAL_SCRIPT),
+                                "original_argv": list(frame["argv"]),
+                                "original_sha256": hashlib.sha256(Path(ORIGINAL_SCRIPT).read_bytes()).hexdigest(),
+                                "frozen": list(restyle.FROZEN), "presentation": list(restyle.PRESENTATION),
+                                "size_mode": SIZE_MODE, "opt_in_changes": changes or None,
+                                "frozen_layer_identical": True, "intake": dict(CONTRACT),
+                                "original_facts": json.loads(json.dumps(restyle.describe(specs, old), default=str)),
+                                "fingerprint": json.loads(json.dumps(restyle.fingerprint(specs), default=str)),
+                                "original_files_written": False}}
+            rep = export_figure(c.fig, stem, state, provenance=prov, formats=FORMATS, dpi=DPI,
+                                allow_overwrite=a.overwrite, kind="field")
+        review = restyle.side_by_side(old, c.fig, str(stem) + ".before_after.png")
+        outputs.append({"frame": frame["name"] or OUT_NAME, "files": rep["outputs"], "review": str(review),
+                        "opt_in_changes": changes})
+    print(json.dumps({"frames": len(outputs), "outputs": outputs, "frozen_layer_identical": True}, indent=1))
 
 
 if __name__ == "__main__":

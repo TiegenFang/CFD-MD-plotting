@@ -241,11 +241,13 @@ def panel_aspect(spec: PanelSpec) -> float:
 # --------------------------------------------------------------------------
 def replay(spec: PanelSpec, ax, *, cmap=None, cbar=True, cbar_label=None, cbar_kw=None,
            keep_ticks=False, outline_halo=True, labels: dict | None = None,
-           allow_unsupported=False) -> dict:
+           allow_unsupported=False, vlim=None) -> dict:
     """Draw ``spec`` on ``ax`` with the scivis presentation layer and the original data layer.
 
     cmap       None keeps the ORIGINAL colour map. Pass a name only when the user opted in;
                the result then lists it under ``changes``.
+    vlim       None keeps the original colour limits. (vmin, vmax) is an explicit opt-in change of the display
+               range (recorded in ``changes``; the colour-bar extend arrows are kept).
     labels     {"xlabel":..., "ylabel":..., "cbar":...}: explicit overrides (e.g. LaTeX-ify a
                label); text is otherwise copied unchanged.
     """
@@ -267,6 +269,11 @@ def replay(spec: PanelSpec, ax, *, cmap=None, cbar=True, cbar_label=None, cbar_k
             from .palettes import get_cmap
             cm = get_cmap(target)
             changes.append(f"cmap: {d['cmap'].name} -> {cm.name} (user opt-in)")
+        if vlim is not None and d.get("norm") is not None:
+            nrm = copy.deepcopy(d["norm"])
+            changes.append(f"colour limits: [{d['norm'].vmin:.4g}, {d['norm'].vmax:.4g}] -> [{vlim[0]:.4g}, {vlim[1]:.4g}] (user opt-in)")
+            nrm.vmin, nrm.vmax = float(vlim[0]), float(vlim[1])
+            d = dict(d, norm=nrm)
         if L.kind == "mesh":
             xs, ys = d["coords"][..., 0], d["coords"][..., 1]
             m = ax.pcolormesh(xs, ys, d["arr"], cmap=cm, norm=copy.deepcopy(d["norm"]), shading=d["shading"],

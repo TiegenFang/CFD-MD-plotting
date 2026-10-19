@@ -14,7 +14,7 @@ Both skills have two modes:
 
 - **Create** a figure from prepared data (`render_plot.py`, `render_field.py`, recipes).
 - **Restyle** a figure you already have ("enhance my plot"): the data layer is frozen and audited, only the
-  presentation changes. See [Restyle mode](#restyle-mode).
+  presentation changes. See [Restyle mode](#restyle-mode) and [Usage workflows](#usage-workflows).
 
 ## What you get
 
@@ -51,7 +51,7 @@ To route requests to the skills, paste [`AGENTS.snippet.md`](AGENTS.snippet.md) 
 ```bash
 python skills/sim-plot/scripts/render_plot.py examples/line.json --out out/line
 python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-python -m pytest tests -q          # 57 tests
+python -m pytest tests -q          # 59 tests
 python verify.py                   # end-to-end check (run without SCIVIS_ALLOW_FONT_FALLBACK)
 ```
 
@@ -63,7 +63,7 @@ For an existing figure and the code that made it:
 
 1. The agent finds the plotting code and runs the template once. It reads, and prints, what the original does:
    colour map, limits, extend arrows, fraction of cells beyond the limits, smoothing and interpolation, size.
-2. It asks at most four questions with recommended answers, quoting those facts. A script gate
+2. It asks at most four questions (`restyle_scope`, `restyle_size`, `restyle_frames`, and the original script if unclear) with recommended answers, quoting those facts. A script gate
    (`CONTRACT["confirmed"]`) prevents rendering before this is done; unattended runs use `--assume-defaults`
    and are recorded as such.
 3. It rebuilds the panel with `scivis`. Values, smoothing, interpolation, colour limits, extend, axis limits, units
@@ -73,6 +73,93 @@ For an existing figure and the code that made it:
 
 Templates: [`skills/sim-field/templates/`](skills/sim-field/templates). Protocol:
 [`skills/sim-plot/references/restyle-mode.md`](skills/sim-plot/references/restyle-mode.md).
+
+## Usage workflows
+
+The prompts below are what you type; the cards are what the agent asks (as multiple-choice question cards in agents
+that support them, otherwise as plain text, and it then waits). Wording and layout of the cards depend on your agent
+client; the question ids, options and defaults are fixed by the skill.
+
+### Workflow 1: enhance an existing figure (restyle)
+
+```text
+You   > Use /sim-field to help me enhance this electric field image.
+
+Agent > Found the plotting code results/figures/plot_rz_charge.py. Ran it once with saving blocked.
+        The original uses: RdBu_r, limits +-2.8 (97.5th percentile, 2% of cells clipped, extend both),
+        Gaussian sigma 0.8 + bilinear x4, r/z in Angstrom, 600x1100 px. These stay frozen unless you say otherwise.
+
+─── [restyle_scope] Which scope should this round use?
+    ◉ White-centre vik + layout (recommended)
+    ○ Layout only (keep RdBu_r)
+    ○ Also adjust display parameters
+─── [restyle_size] Which figure size? All three write PDF, 600 dpi PNG and SVG.
+    ◉ Compact paper figure (recommended)
+    ○ Strict 89 mm wide
+    ○ Presentation figure
+─── [restyle_frames] One representative frame or every existing frame? Output goes to a new, separate directory.
+    ◉ One representative frame (recommended)
+    ○ All 30 frames
+
+You   > (accepts the recommended answers)
+
+Agent > Rendering. Frozen-layer audit: identical (values, smoothing, limits, extend, axes, units, text).
+        Changed on request: RdBu_r -> vik (white centre). The original files were not written.
+        restyle_out/rz_charge_restyled.pdf | .png (600 dpi) | .svg
+        restyle_out/rz_charge_restyled.viz.json        (audit + the answers above)
+        restyle_out/rz_charge_restyled.caption.txt     (mentions the percentile limits and smoothing)
+        restyle_out/rz_charge_restyled.before_after.png
+```
+
+What the options do in the harvest template ([`restyle_harvest_template.py`](skills/sim-field/templates/restyle_harvest_template.py)):
+
+| Question | Option | Template setting |
+|---|---|---|
+| `restyle_scope` | vik + layout / layout only / adjust display parameters | `OPT_IN["cmap"]` = `"signed-if-diverging"` / `None` / plus `OPT_IN["vlim"]` etc. |
+| `restyle_size` | compact / strict 89 mm / presentation | `SIZE_MODE` = `"compact"` (panel ≤ 80 mm tall, tall panels become narrow figures) / `"strict-89"` / `"presentation"` (160 mm wide, panel ≤ 110 mm tall); `DPI = 600` |
+| `restyle_frames` | one frame / all frames | `FRAMES` with one entry, or one entry per existing frame; files go to `OUT_DIR` |
+
+Unattended runs skip the cards: `--assume-defaults` uses the recommended answers and records that nobody confirmed them.
+
+### Workflow 2: create a figure from data
+
+```text
+You   > Use /sim-field to plot the spanwise vorticity and pressure coefficient around the cylinder
+        from examples/field_wake.npz for a paper.
+
+Agent > Message: the vortex street sheds alternating-sign vortices; pressure is lowest in the wake core.
+        Medium: paper, 183 mm wide, 3 panels. Colour: speed sequential; C_p and vorticity signed ->
+        vik with white centre, symmetric limits. Recipe: cfd_field_panels.
+
+Agent > python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
+        QA: passed (clipping, font size, colour-bar labels, canvas width).
+        out: field_wake.pdf | .png | .svg | .viz.json | .caption.txt
+```
+
+The agent's wording will differ; the steps (state the message, choose medium and colour role, render through the
+script, QA gate, sidecar) are what the skill enforces.
+
+## Gallery
+
+All images are in [`previews/`](previews) and were produced by the scripts in [`examples/`](examples) from synthetic
+data.
+
+**Field panels with streamlines** (`cfd_field_panels`): speed, pressure coefficient and vorticity on one canvas.
+Signed fields use vik with a white centre.
+
+![Field panels](previews/cfd_field_panels.png)
+
+**Restyle before/after** (`restyle_demo`): left, the original; right, the restyled version. Data, smoothing, limits
+and units are identical; colour map (vik), fonts, frame and colour bar changed.
+
+![Restyle before and after](previews/restyle_demo/rz_charge_restyled.before_after.png)
+
+| | |
+|---|---|
+| ![Wake field](previews/field_wake.png)<br>**Wake field** (`field_wake`) | ![Wake zoom](previews/wake_zoom.png)<br>**Zoom inset** (`wake_zoom`) |
+| ![CFD monitors](previews/cfd_monitors.png)<br>**Residual and force monitors** (`cfd_monitors`) | ![MD line panels](previews/md_line_panels.png)<br>**MD line panels** (`md_line_panels`) |
+| ![Ghost multiples](previews/ghost_multiples.png)<br>**Ghost small multiples** (`ghost_multiples`) | ![Parity plot](previews/scatter_parity.png)<br>**Parity plot with marginals** (`scatter_parity`) |
+| ![Slide adaptation](previews/slide_adaptation.png)<br>**Paper figure adapted to a slide** (`slide_adaptation`) | ![Colour audit](previews/color_audit.png)<br>**Colour audit** (`color_audit`) |
 
 ## Repository layout
 

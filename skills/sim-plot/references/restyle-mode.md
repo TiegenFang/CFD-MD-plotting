@@ -45,14 +45,17 @@ Opt-in changes (ask first, record each in `restyle.opt_in_changes`): colour map,
    extend, fraction of cells beyond the limits, smoothing/interpolation, shape, labels, original size). Everything
    you can read, you do not ask. Never ask what the code or manifest already answers.
 2. **Ask what is left, as ONE batch (AskUserQuestion, max 4), each with your recommended answer first**, quoting the
-   detected facts so the user can say yes in one click. Walk the decision tree top-down and stop at the first
-   branch that is unresolved:
-   - *Original*: "Is `<script>` the code that produced this figure?" (rec: yes / other / no code, data only).
-   - *Scope*: "I will change only fonts, size, frame, ticks, colour bar. Keep smoothing (`sigma 0.8`, bilinear x4),
-     limits (`+-1.18`, 2% clipped, extend both), units (Angstrom) and `RdBu_r` -> vik as before?" (rec: yes, with
-     the standing decisions below). Name each frozen item with its real value.
-   - *Target*: medium/width and formats (rec: paper single column, pdf+png+svg).
-   - *Extras*: any of colour map change, new annotations/zoom, other medium (rec: none).
+   detected facts so the user can say yes in one click. Use these question ids; skip any the user already answered:
+   - `restyle_scope` - what may change. Options: *vik with white centre + layout* (rec; frozen layer stays,
+     only signed diverging maps are swapped) / *layout only* (keep the original colour map) / *also adjust display
+     parameters* (user names them, e.g. colour range `OPT_IN["vlim"]`; warn what share of cells it clips).
+     Name each frozen item with its real value (smoothing, limits, extend, units).
+   - `restyle_size` - canvas, always pdf + 600 dpi png + svg. Options: *compact paper figure* (rec;
+     `SIZE_MODE="compact"`, panel <= 80 mm tall) / *strict 89 mm wide* (`"strict-89"`) / *presentation figure*
+     (`"presentation"`, 160 mm wide, panel <= 110 mm tall).
+   - `restyle_frames` - how many figures. Options: *one representative frame* (rec) / *all existing frames*
+     (`FRAMES` = one entry per frame with its own argv; outputs go to a NEW directory, `OUT_DIR`).
+   - Only if unresolved: *Original* ("Is `<script>` the code that produced this figure?").
 3. **Push back once on a risky answer** (e.g. "make the scale tighter" -> say what percentage gets clipped and
    what that hides), then follow the user's decision.
 4. **Record it**: set `CONTRACT` (`confirmed=True`, `answers_source="user"`, the answers). It is written into
