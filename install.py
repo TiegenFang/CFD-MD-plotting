@@ -31,7 +31,7 @@ def main():
     print(f"Destination: {target}")
     print("Skills: sim-plot (hosts the shared scivis layer), sim-field; both must remain siblings.")
     if not a.apply:
-        print("Dry run only. Add --apply to copy. No environment or AGENTS.md changes are made.")
+        print("Dry run only. Add --apply to copy. No environment changes are made; the calling rules live in each SKILL.md.")
         return
     target.mkdir(parents=True, exist_ok=True)
     for name in names:

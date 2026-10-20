@@ -12,7 +12,8 @@ colour, typography and layout system.
 
 Both skills have two modes:
 
-- **Create** a figure from prepared data (`render_plot.py`, `render_field.py`, recipes).
+- **Create** a figure from prepared data **to your layout and requirements** (panel grid, size in mm, colour roles, axis
+  ranges, labels): `render_plot.py`, `render_field.py`, recipes, or the custom-layout template. See [Create mode](#create-mode).
 - **Restyle** a figure you already have ("enhance my plot"): the data layer is frozen and audited, only the
   presentation changes. See [Restyle mode](#restyle-mode) and [Usage workflows](#usage-workflows).
 
@@ -44,18 +45,34 @@ Copy the two folders into the skills directory of your agent, keeping them side 
 `python install.py --target codex|claude|omp --scope user` does this for you (dry run by default, add `--apply`).
 Then `pip install -r requirements.txt` (numpy, matplotlib, cmcrameri; tol-colors and colorspacious are optional).
 Arial is not bundled; install it, or pass `--allow-font-fallback` for draft output.
-To route requests to the skills, paste [`AGENTS.snippet.md`](AGENTS.snippet.md) into your `AGENTS.md`.
+No `AGENTS.md` changes are needed: each `SKILL.md` carries its own calling rules (when to use it, when not to, which mode).
 
 ## Quick start
 
 ```bash
 python skills/sim-plot/scripts/render_plot.py examples/line.json --out out/line
 python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-python -m pytest tests -q          # 59 tests
+python -m pytest tests -q          # 61 tests
 python verify.py                   # end-to-end check (run without SCIVIS_ALLOW_FONT_FALLBACK)
 ```
 
 Previews of every example and recipe are in [`previews/`](previews). All example data are synthetic.
+
+## Create mode
+
+For a new figure with a layout and requirements of your own ("three panels, 183 mm wide, letters a-c, same y range,
+case A always blue"):
+
+1. The agent reads what you already specified (layout, size, colour meaning, ranges, outputs) and the data.
+2. It asks at most four questions with recommended answers, only about what is missing: `create_layout`,
+   `create_size`, `create_encoding`, `create_requirements`. Unattended runs use the recommended answers and record that
+   nobody confirmed them.
+3. It builds the figure on the shared canvas: `render_plot.py` / `render_field.py` for one prepared panel, a recipe for a
+   near match, or [`custom_layout_template.py`](skills/sim-plot/recipes/custom_layout_template.py) for any other layout
+   (rows x columns, width and height ratios, spanning cells, panel letters, outside colour bars).
+4. QA gate, then pdf / png (600 dpi) / svg, a `.viz.json` that records your brief and layout, and a caption stub.
+
+Protocol and the requirement-to-API table: [`skills/sim-plot/references/create-mode.md`](skills/sim-plot/references/create-mode.md).
 
 ## Restyle mode
 
@@ -121,23 +138,46 @@ What the options do in the harvest template ([`restyle_harvest_template.py`](ski
 
 Unattended runs skip the cards: `--assume-defaults` uses the recommended answers and records that nobody confirmed them.
 
-### Workflow 2: create a figure from data
+### Workflow 2: create a figure to your layout and requirements
 
 ```text
-You   > Use /sim-field to plot the spanwise vorticity and pressure coefficient around the cylinder
-        from examples/field_wake.npz for a paper.
+You   > Use /sim-plot to make a 3-panel figure for a paper: (a) velocity profiles for cases 1-3, (b) parity of
+        predicted vs reference Cp, (c) pressure drop of the three geometries as bars. Same height, 183 mm wide,
+        panel letters. Cases keep their colours from the earlier figure.
 
-Agent > Message: the vortex street sheds alternating-sign vortices; pressure is lowest in the wake core.
-        Medium: paper, 183 mm wide, 3 panels. Colour: speed sequential; C_p and vorticity signed ->
-        vik with white centre, symmetric limits. Recipe: cfd_field_panels.
+Agent > Read results/profiles.csv, cp_parity.csv, dp.csv (units: m/s, -, kPa). Message: the model reproduces Cp and
+        geometry C has the lowest pressure drop. Medium: paper. Colour: cases are categories, bars carry no colour meaning.
 
-Agent > python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-        QA: passed (clipping, font size, colour-bar labels, canvas width).
-        out: field_wake.pdf | .png | .svg | .viz.json | .caption.txt
+─── [create_layout] Which panel arrangement?
+    ◉ 1 x 3 row, equal panels, letters a-c (recommended)
+    ○ 2 x 2 grid with one empty cell
+    ○ Custom: I will describe it
+─── [create_size] Which canvas? All write PDF, 600 dpi PNG and SVG.
+    ◉ Paper, double column 183 mm x 52 mm (recommended)
+    ○ Paper, single column 89 mm
+    ○ Slide
+─── [create_encoding] What does colour encode?
+    ◉ Cases are categories; keep the colours of the earlier figure (recommended)
+    ○ Cases are an ordered parameter (sequential map)
+    ○ No colour meaning (grey + one accent)
+─── [create_requirements] Hard constraints to honour?
+    ◉ None beyond the layout (recommended)
+    ○ I will list them (axis ranges, shared limits, labels)
+
+You   > (accepts the recommended answers)
+
+Agent > Copied recipes/custom_layout_template.py to results/figures/make_fig3.py, filled BRIEF, WIDTH, PANELS
+        and the three data functions, then ran it.
+        QA: passed (clipping, font size, canvas width 183.0 mm). Requirements checked against the picture:
+        three panels, same height, letters a-c, case colours as before.
+        figures_out/fig3.pdf | .png (600 dpi) | .svg
+        figures_out/fig3.viz.json       (brief, layout, answers)
+        figures_out/fig3.caption.txt
 ```
 
-The agent's wording will differ; the steps (state the message, choose medium and colour role, render through the
-script, QA gate, sidecar) are what the skill enforces.
+The agent's wording will differ. What the skill enforces is the sequence: read the brief, ask only what is missing, state
+the message and colour meaning, render through the shared canvas, QA gate, record the brief in the sidecar. The
+three-panel example above is what the template produces with its synthetic placeholder data (see the gallery).
 
 ## Gallery
 
@@ -160,11 +200,12 @@ and units are identical; colour map (vik), fonts, frame and colour bar changed.
 | ![CFD monitors](previews/cfd_monitors.png)<br>**Residual and force monitors** (`cfd_monitors`) | ![MD line panels](previews/md_line_panels.png)<br>**MD line panels** (`md_line_panels`) |
 | ![Ghost multiples](previews/ghost_multiples.png)<br>**Ghost small multiples** (`ghost_multiples`) | ![Parity plot](previews/scatter_parity.png)<br>**Parity plot with marginals** (`scatter_parity`) |
 | ![Slide adaptation](previews/slide_adaptation.png)<br>**Paper figure adapted to a slide** (`slide_adaptation`) | ![Colour audit](previews/color_audit.png)<br>**Colour audit** (`color_audit`) |
+| ![Custom layout](previews/custom_layout.png)<br>**Custom 1 x 3 layout from the template** (`custom_layout`) | |
 
 ## Repository layout
 
 ```
-skills/sim-plot/    SKILL.md, scripts/scivis (shared layer), scripts/render_plot.py, recipes/, references/, assets/
+skills/sim-plot/    SKILL.md (calling rules), scripts/scivis (shared layer), scripts/render_plot.py, recipes/ (incl. custom_layout_template.py), references/ (create-mode, restyle-mode, ...), assets/
 skills/sim-field/   SKILL.md, scripts/render_field.py, recipes/, templates/, references/
 examples/           synthetic configs, data and an example "original" script
 previews/           rendered examples

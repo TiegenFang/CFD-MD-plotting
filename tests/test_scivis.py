@@ -587,3 +587,31 @@ def test_template_size_mode_dpi_and_frames():
     finally:
         tmp.unlink(missing_ok=True)
         shutil.rmtree(root / "restyle_out_test", ignore_errors=True)
+
+
+def _run_recipe(*extra, cwd):
+    root = Path(__file__).resolve().parents[1]
+    return subprocess.run([sys.executable, str(root / "skills" / "sim-plot" / "recipes" / "custom_layout_template.py"),
+                           "--allow-font-fallback", *extra], cwd=cwd, capture_output=True, text=True,
+                          env={**os.environ, "SCIVIS_ALLOW_FONT_FALLBACK": "1"})
+
+
+def test_custom_layout_template_gate_and_brief(tmp_path):
+    r = _run_recipe(cwd=tmp_path)
+    assert r.returncode == 3 and "BRIEF NOT CONFIRMED" in r.stdout
+    assert not (tmp_path / "figures_out").exists()
+    r = _run_recipe("--assume-defaults", cwd=tmp_path)
+    assert r.returncode == 0, r.stderr[-400:]
+    side = json.loads((tmp_path / "figures_out" / "custom_layout.viz.json").read_text())
+    assert abs(side["size_mm"][0] - 183.0) < 0.5 and side["raster_dpi"] == 600
+    prov = side["provenance"]
+    assert prov["brief"]["answers_source"] == "default-unattended" and prov["layout"]["grid"] == [1, 3]
+
+
+def test_skill_docs_carry_calling_rules_and_no_agents_snippet():
+    root = Path(__file__).resolve().parents[1]
+    assert not (root / "AGENTS.snippet.md").exists()
+    for name in ("sim-plot", "sim-field"):
+        text = (root / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
+        assert "calling rules" in text and "create_layout" in text and "restyle_scope" in text
+    assert (root / "skills" / "sim-plot" / "references" / "create-mode.md").exists()

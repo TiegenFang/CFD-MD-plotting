@@ -11,7 +11,7 @@
 
 两个 skill 都有两种模式：
 
-- **新建**：从已处理好的数据出图（`render_plot.py`、`render_field.py`、recipes）。
+- **新建**：从已处理好的数据出图，**按你指定的布局与要求**（面板网格、毫米尺寸、配色含义、坐标范围、标签）：`render_plot.py`、`render_field.py`、recipes 或自定义布局模板。见[新建图（create 模式）](#新建图create-模式)。
 - **美化已有图**（"帮我优化这张图"）：数据层被冻结并接受审计，只改变呈现层。见[美化已有图（restyle 模式）](#美化已有图restyle-模式)与[使用流程](#使用流程)。
 
 ## 主要能力
@@ -37,18 +37,29 @@
 `python install.py --target codex|claude|omp --scope user` 可代为复制（默认只做演练，加 `--apply` 才会真正复制）。
 然后执行 `pip install -r requirements.txt`（numpy、matplotlib、cmcrameri；tol-colors 与 colorspacious 为可选）。
 本仓库不附带 Arial，请自行安装；也可以加 `--allow-font-fallback` 输出草稿图。
-若要让 agent 把请求路由到这两个 skill，请把 [`AGENTS.snippet.md`](AGENTS.snippet.md) 的内容手动粘贴进你的 `AGENTS.md`。
+无需修改 `AGENTS.md`：每个 `SKILL.md` 自带调用规则（何时使用、何时不用、选用哪种模式）。
 
 ## 快速开始
 
 ```bash
 python skills/sim-plot/scripts/render_plot.py examples/line.json --out out/line
 python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-python -m pytest tests -q          # 59 个测试
+python -m pytest tests -q          # 61 个测试
 python verify.py                   # 端到端检查（运行时请勿设置 SCIVIS_ALLOW_FONT_FALLBACK）
 ```
 
 所有示例与 recipe 的预览图在 [`previews/`](previews) 中。示例数据均为合成数据。
+
+## 新建图（create 模式）
+
+适用于有自己的布局和要求的新图（"三个面板，183 mm 宽，面板字母 a–c，y 范围一致，工况 A 始终用蓝色"）：
+
+1. agent 先读取你已经说明的内容（布局、尺寸、配色含义、坐标范围、输出）以及数据。
+2. 它一次最多提 4 个带推荐答案的问题，只问缺少的信息：`create_layout`、`create_size`、`create_encoding`、`create_requirements`。无人值守时使用推荐答案，并如实记录"无人确认"。
+3. 它在共享画布上构建图：单个已处理好的面板用 `render_plot.py` / `render_field.py`；接近的情形用 recipe；其他布局用 [`custom_layout_template.py`](skills/sim-plot/recipes/custom_layout_template.py)（行×列、宽高比例、跨格面板、面板字母、位于外侧的色标）。
+4. QA 关卡通过后输出 pdf / png（600 dpi）/ svg，以及记录你的需求与布局的 `.viz.json` 和图注草稿。
+
+完整流程及"需求 → API"对照表见 [`skills/sim-plot/references/create-mode.md`](skills/sim-plot/references/create-mode.md)。
 
 ## 美化已有图（restyle 模式）
 
@@ -107,21 +118,42 @@ Agent > 开始渲染。冻结层审计：一致（数值、平滑、色标范围
 
 无人值守时不会出现卡片：`--assume-defaults` 使用推荐答案，并记录"无人确认"。
 
-### 流程 2：从数据新建图
+### 流程 2：按你的布局与要求新建图
 
 ```text
-You   > 用 /sim-field 把 examples/field_wake.npz 中圆柱周围的展向涡量和压力系数画出来，用于论文。
+You   > 用 /sim-plot 为论文做一张 3 面板图：(a) 工况 1–3 的速度剖面，(b) Cp 预测值与参考值的 parity 图，
+        (c) 三种几何的压降柱状图。等高，183 mm 宽，带面板字母。工况沿用上一张图的颜色。
 
-Agent > 要点：涡街交替脱落异号涡；压力在尾迹核心最低。
-        介质：论文，183 mm 宽，3 个面板。配色：速度用序列色；C_p 与涡量为带符号量 ->
-        带白色中心的 vik，对称范围。Recipe：cfd_field_panels。
+Agent > 已读取 results/profiles.csv、cp_parity.csv、dp.csv（单位：m/s、-、kPa）。要点：模型复现了 Cp，几何 C 的压降最低。
+        介质：论文。配色：工况为分类，柱状图的颜色不携带含义。
 
-Agent > python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-        QA：通过（裁切、字号、色标标签、画布宽度）。
-        输出：field_wake.pdf | .png | .svg | .viz.json | .caption.txt
+─── [create_layout] 面板如何排布？
+    ◉ 1×3 一行，面板等大，字母 a–c（推荐）
+    ○ 2×2 网格，留一个空格
+    ○ 自定义：我来描述
+─── [create_size] 图幅采用哪一种？均输出 PDF、600 dpi PNG 和 SVG。
+    ◉ 论文双栏 183 mm × 52 mm（推荐）
+    ○ 论文单栏 89 mm
+    ○ 幻灯片
+─── [create_encoding] 颜色表示什么？
+    ◉ 工况为分类，沿用上一张图的颜色（推荐）
+    ○ 工况为有序参数（序列色图）
+    ○ 颜色不携带含义（灰色＋一个强调色）
+─── [create_requirements] 有哪些必须满足的硬性要求？
+    ◉ 除布局外没有（推荐）
+    ○ 我来列出（坐标范围、共享范围、标签）
+
+You   > （接受全部推荐答案）
+
+Agent > 已把 recipes/custom_layout_template.py 复制到 results/figures/make_fig3.py，填写了 BRIEF、WIDTH、PANELS 和三个数据函数，并运行。
+        QA：通过（裁切、字号、画布宽度 183.0 mm）。已对照图检查各项要求：
+        三个面板、等高、字母 a–c、工况颜色与之前一致。
+        figures_out/fig3.pdf | .png（600 dpi）| .svg
+        figures_out/fig3.viz.json       （需求、布局与回答）
+        figures_out/fig3.caption.txt
 ```
 
-agent 的具体措辞会有所不同；skill 强制执行的是这些步骤：先说明要点、选择介质与配色角色、通过脚本渲染、QA 关卡、生成溯源文件。
+agent 的具体措辞会有所不同。skill 强制执行的是这个顺序：读取需求、只问缺少的信息、说明要点与配色含义、通过共享画布渲染、QA 关卡、把需求记录进溯源文件。上面的三面板示例，就是模板在其合成占位数据下生成的效果（见图库）。
 
 ## 图库
 
@@ -141,11 +173,12 @@ agent 的具体措辞会有所不同；skill 强制执行的是这些步骤：�
 | ![CFD 监控](previews/cfd_monitors.png)<br>**残差与受力监控**（`cfd_monitors`） | ![MD 折线面板](previews/md_line_panels.png)<br>**MD 折线面板**（`md_line_panels`） |
 | ![Ghost 小多图](previews/ghost_multiples.png)<br>**Ghost 小多图**（`ghost_multiples`） | ![Parity 图](previews/scatter_parity.png)<br>**带边缘分布的 parity 图**（`scatter_parity`） |
 | ![幻灯片改编](previews/slide_adaptation.png)<br>**论文图改编为幻灯片**（`slide_adaptation`） | ![色彩审计](previews/color_audit.png)<br>**色彩审计**（`color_audit`） |
+| ![自定义布局](previews/custom_layout.png)<br>**由模板生成的自定义 1×3 布局**（`custom_layout`） | |
 
 ## 仓库结构
 
 ```
-skills/sim-plot/    SKILL.md、scripts/scivis（共享层）、scripts/render_plot.py、recipes/、references/、assets/
+skills/sim-plot/    SKILL.md（含调用规则）、scripts/scivis（共享层）、scripts/render_plot.py、recipes/（含 custom_layout_template.py）、references/（含 create-mode、restyle-mode 等）、assets/
 skills/sim-field/   SKILL.md、scripts/render_field.py、recipes/、templates/、references/
 examples/           合成数据的配置与数据，以及一个示例"原始"绘图脚本
 previews/           示例渲染结果

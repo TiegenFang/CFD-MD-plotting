@@ -27,5 +27,11 @@ First public release of the two skills with a shared styling, colour and layout 
   figures into a new directory), opt-in `vlim` colour range (recorded, audited). Intake questions `restyle_scope`,
   `restyle_size`, `restyle_frames`.
 
+- Create mode for figures to the user's own layout and requirements: `references/create-mode.md` (brief, questions
+  `create_layout` / `create_size` / `create_encoding` / `create_requirements`, requirement-to-API table) and
+  `recipes/custom_layout_template.py` (any grid, ratios, spanning cells, panel letters; brief gate; brief and layout
+  recorded in `.viz.json`).
+- Calling rules now live in each `SKILL.md`; `AGENTS.snippet.md` was removed.
+
 ### Tooling
 - 57 tests, `verify.py`, `install.py` (dry run by default), `export_mplstyle.py`, `export_lut.py`, rendered previews.

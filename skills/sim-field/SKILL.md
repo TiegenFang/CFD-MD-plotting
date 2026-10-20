@@ -1,10 +1,46 @@
 ---
 name: sim-field
 description: >-
-  Post-process and visualize CFD/MD physical fields, and restyle existing field figures ("enhance/beautify/polish my X plot", 美化已有云图; restyle mode keeps data, smoothing, limits, colour map and units frozen): 云图、contour、切片、等值面、流线、非结构网格、时空密度图; optionally render molecular snapshots when explicitly requested. Preserve geometry, data association, units, masks, averaging and shared color ranges. Use ParaView/pvpython for native 3D CFD data and Matplotlib for prepared 2D fields. Do not trigger for ordinary line/scatter/bar figures, solver debugging or scientific discussion.
+  Post-process and visualize CFD/MD physical fields to the user's own layout and requirements (panel arrangement, size, colour limits, overlays), and restyle existing field figures ("enhance/beautify/polish my X plot", 美化已有云图; restyle mode keeps data, smoothing, limits, colour map and units frozen): 云图、contour、切片、等值面、流线、非结构网格、时空密度图; optionally render molecular snapshots when explicitly requested. Preserve geometry, data association, units, masks, averaging and shared color ranges. Use ParaView/pvpython for native 3D CFD data and Matplotlib for prepared 2D fields. Do not trigger for ordinary line/scatter/bar figures, solver debugging or scientific discussion.
 ---
 
 # Simulation physical-field post-processing
+
+## When to use this skill (calling rules)
+
+Use `sim-field` for physical fields, contours, streamlines, mesh-aware slices, MD density / charge / velocity
+construction, or explicitly requested molecular snapshots. Use `../sim-plot` for line / scatter / bar /
+condition-comparison / small-multiples figures, monitors and parity plots. Pure scientific discussion, solver
+debugging and simulation setup trigger neither. A field panel plus a quantitative plot may use the two routes in
+sequence; do not duplicate their analysis.
+
+- Load only the relevant skill and its on-demand reference. `sim-plot` owns `scivis`; `sim-field` imports it from
+  the sibling directory.
+- Before code: state the message and the medium (paper / slide / poster), and say what each colour encodes.
+- Reuse the shared style and an existing script, recipe or template; never paste rcParams or layout code into a
+  figure script.
+- For these tasks the sim-plot / sim-field visual rules take precedence over a generic Nature or visualization skill.
+  Run a journal-specific audit only when submission checking is requested.
+- Keep data reduction separate from visual edits; do not rerun trajectories or CFD because a colour or font changed.
+- One focused render review (the `qa` gate plus a look at the PNG), fix observed issues in the same source, finish the
+  caption stub, stop. No redundant smoke tests, copied plotting scripts or leftover validation files.
+
+## Two modes: pick one first
+
+| The user has... | Mode | Read |
+|---|---|---|
+| field data and a figure to make, with or without a specified layout | **Create** | `../sim-plot/references/create-mode.md` and the field route below |
+| an existing field figure ("enhance my electric-field plot", 美化/优化这张图) whose data must not change | **Restyle** | `../sim-plot/references/restyle-mode.md` |
+
+**Create mode:** the user's layout and requirements are the specification (panel arrangement, size, colour limits and
+reference, overlays, zoom insets, labels). Read what they already gave you, then ask at most four questions about what
+is missing, in one batch with a recommended answer each: `create_layout`, `create_size`, `create_encoding`,
+`create_requirements` (ids and options in `create-mode.md`; for fields, `create_encoding` is the colour map role and
+the limits/reference for signed quantities). Render with `scripts/render_field.py CONFIG.json` for one prepared field
+panel (put the brief in the config as `"brief": {...}`), `recipes/cfd_field_panels.py` or `recipes/wake_zoom.py` for
+near matches, and `../sim-plot/recipes/custom_layout_template.py` for any other specified layout (field panels use
+`c.ax(i, j, field=True)` and `layout.add_colorbar`). Native 3D data goes through ParaView first (see the field
+contract below).
 
 ## Dependency and narrow loading
 
@@ -19,7 +55,7 @@ layout (`scivis`). Read `../sim-plot/references/visual-system.md` and
 
 Do not load protein analysis, all ParaView APIs or all MDAnalysis modules by default.
 
-## Existing figure? Use restyle mode first
+## Restyle mode: an existing figure
 
 If the user names, attaches or implies an existing figure ("enhance my electric-field plot", 美化/优化这张图),
 do NOT re-render from raw data with `render_field.py`. Read `../sim-plot/references/restyle-mode.md` and follow it:

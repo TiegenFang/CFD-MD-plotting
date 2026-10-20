@@ -1,16 +1,46 @@
 ---
 name: sim-plot
 description: >-
-  Create or refine quantitative figures from CFD/MD results: 折线、散点、工况对比、柱状、误差带、小多图、RDF/MSD curves, residual/force monitors, parity plots; also the shared style, colour and layout layer (scivis) used by sim-field. Scientific colours, Arial/math labels, mm-exact multi-panel layout. Trigger on an explicit plotting, restyling or figure-review task. Also restyle existing figures (enhance/beautify/重绘) without changing their data. Do not trigger on scientific discussion, simulation debugging, solver setup, trajectory reduction, physical-field contours or molecular snapshot rendering. Route fields and trajectories to sim-field.
+  Create figures to the user's own layout and requirements (panel grid, size in mm, colour roles, axis ranges, labels), or restyle an existing figure without changing its data, for quantitative CFD/MD results: 折线、散点、工况对比、柱状、误差带、小多图、RDF/MSD curves, residual/force monitors, parity plots; also the shared style, colour and layout layer (scivis) used by sim-field. Scientific colours, Arial/math labels, mm-exact multi-panel layout. Trigger on an explicit plotting, layout, restyling (enhance/beautify/重绘) or figure-review task. Do not trigger on scientific discussion, simulation debugging, solver setup, trajectory reduction, physical-field contours or molecular snapshot rendering. Route fields and trajectories to sim-field.
 ---
 
 # Simulation quantitative plotting + shared style layer
 
-> Existing figure + "enhance/beautify/restyle"? Read `references/restyle-mode.md` first. Find the original plotting
-> code yourself; ask at most four questions, only about what you could not find. Data, smoothing, interpolation,
-> colour limits, extend, colour map, axis limits and units are frozen; only presentation changes
-> (`scivis.restyle`). Use the restyle templates in the user's project, not `render_field.py`/`render_plot.py`.
-> Never overwrite the original figure, data or script.
+## When to use this skill (calling rules)
+
+Use `sim-plot` for requested line / scatter / bar / condition-comparison / small-multiples figures, residual and
+force monitors, parity plots, a custom multi-panel layout the user specifies, or restyling of already-computed CFD/MD
+curves. Use `sim-field` for physical fields, contours, streamlines, mesh-aware slices, MD density construction or
+explicitly requested molecular snapshots. Pure scientific discussion, solver debugging and simulation setup trigger
+neither. A field panel plus a quantitative plot may use the two routes in sequence; do not duplicate their analysis.
+
+- Load only the relevant skill and its on-demand reference. `sim-plot` owns `scivis`; `sim-field` imports it.
+- Before code: state the message and the medium (paper / slide / poster), and say what each colour encodes.
+- Reuse the shared style and an existing script, recipe or template; never paste rcParams or layout code into a
+  figure script.
+- For these tasks the sim-plot / sim-field visual rules take precedence over a generic Nature or visualization skill.
+  Run a journal-specific audit only when submission checking is requested; do not load competing style guides.
+- Keep data reduction separate from visual edits; do not rerun trajectories or CFD because a colour or font changed.
+- One focused render review (the `qa` gate plus a look at the PNG), fix observed issues in the same source, finish the
+  caption stub, stop. No redundant smoke tests, copied plotting scripts, per-case forks or leftover validation files.
+
+## Two modes: pick one first
+
+| The user has... | Mode | Read |
+|---|---|---|
+| data/results and a figure to make, with or without a specified layout | **Create** | `references/create-mode.md` |
+| an existing figure ("enhance / beautify / restyle my plot", 美化已有图) whose data must not change | **Restyle** | `references/restyle-mode.md` |
+
+**Create mode:** the user's layout and requirements are the specification. Read what they already gave you (layout,
+size, colour meaning, ranges), ask at most four questions about what is missing in one batch with a recommended
+answer each (`create_layout`, `create_size`, `create_encoding`, `create_requirements`), then render through
+`render_plot.py`, a recipe, or `recipes/custom_layout_template.py` (any rows x columns, ratios, panel letters).
+The brief is recorded in `.viz.json`.
+
+**Restyle mode:** find the original plotting code yourself; ask at most four questions, only about what you could not
+find (`restyle_scope`, `restyle_size`, `restyle_frames`). Data, smoothing, interpolation, colour limits, extend, colour
+map, axis limits and units are frozen; only presentation changes (`scivis.restyle`). Use the restyle templates in
+the user's project, not `render_field.py`/`render_plot.py`. Never overwrite the original figure, data or script.
 
 ## Scope and precedence
 
@@ -43,7 +73,8 @@ rcParams or helpers into a figure script; import `scivis`.
    (`palettes.highlight`). Persistent species/case registries win over palettes.
 5. Pick the nearest route:
    - tidy CSV line / scatter / bar / small-multiples -> `scripts/render_plot.py CONFIG.json`
-   - multi-panel or novel figure -> copy the nearest file in `recipes/`, replace only
+   - a specified multi-panel layout -> `recipes/custom_layout_template.py` (grid, ratios, letters, brief)
+   - a near-match multi-panel figure -> copy the nearest file in `recipes/`, replace only
      the data function (never write layout from scratch)
 6. Render once, inspect at final physical size (`layout.qa` gate + look at the PNG),
    fix a demonstrated problem in the same source, stop.
