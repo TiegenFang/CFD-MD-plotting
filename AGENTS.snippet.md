@@ -22,9 +22,3 @@ or fonts changed. Perform one focused render review (the `qa` gate plus a look a
 observed issues in the same source, finish the generated caption stub, and stop. Do not create
 redundant smoke tests, copied plotting scripts, per-case code forks or persistent temporary
 validation artifacts.
-
-Existing figure ("enhance / beautify / restyle my ... plot", 美化已有图): use restyle mode
-(`sim-plot/references/restyle-mode.md`). Find the original plotting code yourself; ask at most four questions and
-only about what you could not find. Data, smoothing, interpolation, colour limits, extend, colour map, axis limits
-and units are FROZEN; change only presentation. Use the restyle templates in the user's project, not
-`render_field.py`. Never overwrite the original figure, data or script.

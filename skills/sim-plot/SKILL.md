@@ -6,8 +6,11 @@ description: >-
 
 # Simulation quantitative plotting + shared style layer
 
-> Existing figure + "enhance/beautify/restyle"? Read `references/restyle-mode.md` first: data, smoothing,
-> limits, colour map and units stay frozen; only presentation changes (`scivis.restyle`).
+> Existing figure + "enhance/beautify/restyle"? Read `references/restyle-mode.md` first. Find the original plotting
+> code yourself; ask at most four questions, only about what you could not find. Data, smoothing, interpolation,
+> colour limits, extend, colour map, axis limits and units are frozen; only presentation changes
+> (`scivis.restyle`). Use the restyle templates in the user's project, not `render_field.py`/`render_plot.py`.
+> Never overwrite the original figure, data or script.
 
 ## Scope and precedence
 

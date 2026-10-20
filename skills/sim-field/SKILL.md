@@ -23,12 +23,19 @@ Do not load protein analysis, all ParaView APIs or all MDAnalysis modules by def
 
 If the user names, attaches or implies an existing figure ("enhance my electric-field plot", 美化/优化这张图),
 do NOT re-render from raw data with `render_field.py`. Read `../sim-plot/references/restyle-mode.md` and follow it:
-find the original plotting code yourself, run the intake gate (templates refuse to render until the user confirmed the plan; Step 2 of the reference) (what to improve, keep smoothing/limits/
-units/colour map frozen?, target medium), then copy `templates/restyle_harvest_template.py` (runnable matplotlib
-original) or `templates/restyle_field_template.py` (paste original data code into the FROZEN block) into the
-user's project. Frozen: values, smoothing, interpolation, colour limits/extend, colour map, axis limits, units,
-text. Presentation only: canvas, fonts, frame, ticks, colour bar, halos. Colour map, unit or limit changes are
-opt-in suggestions, never silent.
+find the original plotting code yourself, then run the intake gate: the templates refuse to render until the user
+has confirmed the plan (Step 2 of the reference). Ask at most four questions, in one batch with a recommended
+answer each, and only about what you could not find in the code: `restyle_scope` (vik + layout / layout only /
+also display parameters), `restyle_size` (compact / strict 89 mm / presentation; always pdf + 600 dpi png + svg),
+`restyle_frames` (one representative frame / all existing frames, written to a new directory), and the original
+script if unclear. Then copy `templates/restyle_harvest_template.py` (runnable matplotlib original) or
+`templates/restyle_field_template.py` (paste original data code into the FROZEN block) into the user's project,
+never `render_field.py`.
+
+Frozen: values, smoothing, interpolation, colour limits/extend, colour map, axis limits, units, text.
+Presentation only: canvas, fonts, frame, ticks, colour bar, halos. Colour map, unit or limit changes are opt-in
+suggestions, never silent. Never overwrite the original figure, data or script; export is refused if the frozen
+layer differs from the original.
 
 ## Field contract before rendering
 
