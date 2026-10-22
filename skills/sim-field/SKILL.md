@@ -73,6 +73,19 @@ Presentation only: canvas, fonts, frame, ticks, colour bar, halos. Colour map, u
 suggestions, never silent. Never overwrite the original figure, data or script; export is refused if the frozen
 layer differs from the original.
 
+## Figure README (Chinese), written with every figure
+
+Every export also writes `<stem>.README.zh-CN.md` (disable with `"readme": false` in a config). Sections 1-3 and 7
+(figure type, panels, x/y axes with scale and range, legend, colour meaning, colour-bar limits, processing, restyle
+audit) are generated from the figure itself. Sections 4-6 are interpretation and are YOURS to write after you have
+looked at the figure and the real data: **4 physical significance**, **5 preliminary results in journal style**,
+**6 directions worth discussing**. Put them in `interpretation` (`physical_significance`, `results`, `discussion`;
+a key in the JSON config, or `INTERPRETATION` in the templates), or edit the generated file. Rules: state only what the
+displayed data support, with numbers and units computed from the data; separate observation from explanation and hedge
+mechanisms ("may", "consistent with"); name the uncertainty definition or say there is none; list the processing
+(smoothing, clipping, transforms); do not claim novelty or physical conclusions from synthetic data. Never leave a
+`【待补充】` placeholder in a README you hand over without telling the user it is pending.
+
 ## Field contract before rendering
 
 Resolve source identity, quantity and units, mesh topology, point/cell association,

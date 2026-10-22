@@ -12,6 +12,7 @@ import numpy as np
 
 from . import layout
 from .captions import caption_stub
+from .readme_zh import readme_zh
 
 VERSION = "1.0.0"
 BLOCKING = {"clipped", "cbar", "tiny", "cjk-math", "font", "size"}
@@ -28,7 +29,7 @@ def _json_value(value):
 def export_figure(fig, stem: str | Path, state: dict, *, provenance: dict[str, Any],
                   formats: Sequence[str] | None = None, dpi: int | None = None,
                   allow_overwrite: bool = False, kind: str = "figure", fit_margins: bool = True,
-                  expect_width_mm: float | None = None) -> dict:
+                  expect_width_mm: float | None = None, readme: bool = True) -> dict:
     """Blocking QA codes (clipped/cbar/tiny/cjk-math/font/size) raise; overlap and legend
     findings are written to the sidecar for review. Never an unbounded fix loop."""
     stem = Path(stem)
@@ -40,7 +41,8 @@ def export_figure(fig, stem: str | Path, state: dict, *, provenance: dict[str, A
     targets = [Path(str(stem) + "." + f) for f in formats]
     sidecar = Path(str(stem) + ".viz.json")
     caption = Path(str(stem) + ".caption.txt")
-    if not allow_overwrite and any(p.exists() for p in targets + [sidecar, caption]):
+    readme_path = Path(str(stem) + ".README.zh-CN.md")
+    if not allow_overwrite and any(p.exists() for p in targets + [sidecar, caption] + ([readme_path] if readme else [])):
         raise FileExistsError("Output exists. Reuse the canonical output only with explicit overwrite.")
     stem.parent.mkdir(parents=True, exist_ok=True)
     canvas = getattr(fig, "_scivis_canvas", None)
@@ -74,4 +76,7 @@ def export_figure(fig, stem: str | Path, state: dict, *, provenance: dict[str, A
                        encoding="utf-8")
     caption.write_text(caption_stub(provenance, kind=kind), encoding="utf-8")
     report["caption"] = caption.name
+    if readme and provenance.get("readme", True) is not False and (provenance.get("config") or {}).get("readme", True) is not False:
+        readme_path.write_text(readme_zh(fig, provenance, report, kind=kind, stem=str(stem)), encoding="utf-8")
+        report["readme_zh"] = readme_path.name
     return report

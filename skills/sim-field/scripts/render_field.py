@@ -117,7 +117,7 @@ def main() -> None:
                     "overlays": {"streamlines": sl, "zoom": z, "boundary": "boundary_xy" in data}}
         report = export_figure(canvas.fig, base / cfg["output"], state, provenance=metadata,
                                formats=cfg.get("formats"), allow_overwrite=args.overwrite, kind="field")
-        print(json.dumps({"outputs": report["outputs"], "font": report["font_resolved"], "field": stats}))
+        print(json.dumps({"outputs": report["outputs"], "readme_zh": report.get("readme_zh"), "font": report["font_resolved"], "field": stats}))
 
 
 if __name__ == "__main__":

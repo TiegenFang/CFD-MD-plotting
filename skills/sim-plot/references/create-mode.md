@@ -69,5 +69,6 @@ sidecar.
 
 Render, run the QA gate, look at the PNG at final size, fix a demonstrated problem in the same source, stop.
 Check every hard requirement against the picture (ranges, letters, colours, widths) and say which ones were met.
-Finish the caption stub. Do not rerun data reduction because a font or colour changed, and do not write extra
+Finish the caption stub and sections 4-6 of the Chinese figure README (`<stem>.README.zh-CN.md`: physical
+significance, journal-style preliminary results, discussion directions; see SKILL.md). Do not rerun data reduction because a font or colour changed, and do not write extra
 variants, smoke-test projects or copied per-case scripts.

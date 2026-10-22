@@ -42,6 +42,19 @@ find (`restyle_scope`, `restyle_size`, `restyle_frames`). Data, smoothing, inter
 map, axis limits and units are frozen; only presentation changes (`scivis.restyle`). Use the restyle templates in
 the user's project, not `render_field.py`/`render_plot.py`. Never overwrite the original figure, data or script.
 
+## Figure README (Chinese), written with every figure
+
+Every export also writes `<stem>.README.zh-CN.md` (disable with `"readme": false` in a config). Sections 1-3 and 7
+(figure type, panels, x/y axes with scale and range, legend, colour meaning, colour-bar limits, processing, restyle
+audit) are generated from the figure itself. Sections 4-6 are interpretation and are YOURS to write after you have
+looked at the figure and the real data: **4 physical significance**, **5 preliminary results in journal style**,
+**6 directions worth discussing**. Put them in `interpretation` (`physical_significance`, `results`, `discussion`;
+a key in the JSON config, or `INTERPRETATION` in the templates), or edit the generated file. Rules: state only what the
+displayed data support, with numbers and units computed from the data; separate observation from explanation and hedge
+mechanisms ("may", "consistent with"); name the uncertainty definition or say there is none; list the processing
+(smoothing, clipping, transforms); do not claim novelty or physical conclusions from synthetic data. Never leave a
+`【待补充】` placeholder in a README you hand over without telling the user it is pending.
+
 ## Scope and precedence
 
 Render already-defined quantitative data. This is not a solver, statistical-analysis
@@ -79,7 +92,7 @@ rcParams or helpers into a figure script; import `scivis`.
 6. Render once, inspect at final physical size (`layout.qa` gate + look at the PNG),
    fix a demonstrated problem in the same source, stop.
 7. Keep the caption stub (`<stem>.caption.txt`, written on export) and finish it:
-   it is half the figure.
+   it is half the figure. Then fill sections 4-6 of the Chinese figure README (see above).
 
 ## House style (defaults live in `assets/theme.json`)
 

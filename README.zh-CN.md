@@ -22,6 +22,7 @@
 - **全框坐标轴、带框图例、位于面板外侧的色标**；过长的色标标签自动改为侧向放置。
 - **Recipes：** CFD 监控曲线、MD 折线面板、带边缘分布的 parity 图、ghost 小多图、幻灯片改编、带流线的场图面板、尾流放大插图。
 - **导出前 QA 关卡。** 文字被裁切、字号过小、色标缺少标签、字体被替代、数学公式内含中文、画布宽度不符，都会阻止导出。每张图同时生成 `.viz.json` 溯源文件和图注草稿。
+- **每张图附带中文说明文档**（`<stem>.README.zh-CN.md`）：坐标轴、图例、图类型、配色含义、数据处理，以及物理意义、符合期刊投稿要求的初步结果描述和值得讨论的方向。见[图说明文档（中文）](#图说明文档中文)。
 - **OpenFOAM 辅助：** 健壮的 `postProcessing` `.dat` 读取器和日志残差读取器。
 
 ## 安装
@@ -44,7 +45,7 @@
 ```bash
 python skills/sim-plot/scripts/render_plot.py examples/line.json --out out/line
 python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-python -m pytest tests -q          # 61 个测试
+python -m pytest tests -q          # 63 个测试
 python verify.py                   # 端到端检查（运行时请勿设置 SCIVIS_ALLOW_FONT_FALLBACK）
 ```
 
@@ -72,6 +73,23 @@ python verify.py                   # 端到端检查（运行时请勿设置 SCI
 
 模板位于 [`skills/sim-field/templates/`](skills/sim-field/templates)，完整流程见
 [`skills/sim-plot/references/restyle-mode.md`](skills/sim-plot/references/restyle-mode.md)。
+
+## 图说明文档（中文）
+
+每张导出的图都会附带 `<stem>.README.zh-CN.md`（在配置中设置 `"readme": false` 可关闭）。示例：
+[`previews/field_wake.README.zh-CN.md`](previews/field_wake.README.zh-CN.md)。
+
+| 章节 | 内容 | 来源 |
+|---|---|---|
+| 1 图的类型与布局 | 类型、面板数、画布尺寸、介质、输出文件 | 由图本身自动生成 |
+| 2 坐标轴 | 每个面板的 x、y 轴标签，线性/对数/对称对数，范围 | 由图本身自动生成 |
+| 3 图例与配色 | 图例条目、颜色含义、色标标签、范围、截断比例、extend | 由图和溯源记录自动生成 |
+| 4 物理意义 | 各量的物理含义与无量纲化方式 | agent 依据真实数据撰写 |
+| 5 初步结果描述 | 含数值与单位的期刊风格描述，并附投稿检查清单 | agent 撰写 |
+| 6 值得讨论的方向 | 图引出的可分析问题，另有自动核查项（被截断单元、非统计误差带、对数轴、合成数据） | agent + 自动生成 |
+| 7 数据处理与可复现信息 | 数据变换、restyle 审计（冻结与更改项）、原脚本哈希 | 由溯源记录自动生成 |
+
+第 4–6 节属于解释性内容，程序无法获知。agent 会在看过图和数据之后撰写（配置中的 `interpretation`，或模板中的 `INTERPRETATION`）；在此之前文件以 `【待补充】` 标出，并在状态行中说明。agent 被要求只写已显示数据能支持的内容、区分观察与解释，并且不对合成数据下任何物理结论。
 
 ## 使用流程
 
@@ -106,6 +124,7 @@ Agent > 开始渲染。冻结层审计：一致（数值、平滑、色标范围
         restyle_out/rz_charge_restyled.viz.json        （审计结果与上述回答）
         restyle_out/rz_charge_restyled.caption.txt     （注明百分位色标范围与平滑）
         restyle_out/rz_charge_restyled.before_after.png
+        restyle_out/rz_charge_restyled.README.zh-CN.md （坐标轴、图例、配色、冻结与改动项；第 4–6 节依据原脚本中的标签和你提供的信息撰写）
 ```
 
 各选项在 harvest 模板（[`restyle_harvest_template.py`](skills/sim-field/templates/restyle_harvest_template.py)）中的对应设置：
@@ -151,6 +170,7 @@ Agent > 已把 recipes/custom_layout_template.py 复制到 results/figures/make_
         figures_out/fig3.pdf | .png（600 dpi）| .svg
         figures_out/fig3.viz.json       （需求、布局与回答）
         figures_out/fig3.caption.txt
+        figures_out/fig3.README.zh-CN.md （坐标轴、图例、配色；物理意义、结果与讨论依据你的数据撰写）
 ```
 
 agent 的具体措辞会有所不同。skill 强制执行的是这个顺序：读取需求、只问缺少的信息、说明要点与配色含义、通过共享画布渲染、QA 关卡、把需求记录进溯源文件。上面的三面板示例，就是模板在其合成占位数据下生成的效果（见图库）。

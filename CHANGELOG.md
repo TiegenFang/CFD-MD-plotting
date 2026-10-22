@@ -31,6 +31,9 @@ First public release of the two skills with a shared styling, colour and layout 
   `create_layout` / `create_size` / `create_encoding` / `create_requirements`, requirement-to-API table) and
   `recipes/custom_layout_template.py` (any grid, ratios, spanning cells, panel letters; brief gate; brief and layout
   recorded in `.viz.json`).
+- Chinese figure README written with every export (`scivis/readme_zh.py`): figure type, axes, legend, colour meaning,
+  processing and restyle audit generated from the figure; physical significance, journal-style results and discussion
+  directions taken from `interpretation` (placeholders marked until written). `"readme": false` disables it.
 - Calling rules now live in each `SKILL.md`; `AGENTS.snippet.md` was removed.
 
 ### Tooling

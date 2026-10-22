@@ -214,7 +214,7 @@ def main() -> None:
                     "scatter_preset": cfg.get("scatter", {}).get("preset", state["theme"]["scatter"]["default"]) if kind == "scatter" else None}
         report = export_figure(fig, base / cfg["output"], state, provenance=metadata,
                                formats=cfg.get("formats"), allow_overwrite=args.overwrite, kind=kind)
-        print(json.dumps({"outputs": report["outputs"], "font": report["font_resolved"],
+        print(json.dumps({"outputs": report["outputs"], "readme_zh": report.get("readme_zh"), "font": report["font_resolved"],
                           "row_counts": report_rows}, ensure_ascii=False))
 
 if __name__ == "__main__":

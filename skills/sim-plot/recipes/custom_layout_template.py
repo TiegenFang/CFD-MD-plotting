@@ -27,6 +27,13 @@ BRIEF = {
     "layout": "1 x 3 row, equal panels, letters a-c",
     "requirements": [],                 # e.g. ["x range 0-4 in all panels", "case A is always blue"]
 }
+# Chinese figure README (<stem>.README.zh-CN.md): sections 4-6. Fill from the REAL data after viewing the figure,
+# or leave empty and the file marks them as pending. Only claims the displayed data support; numbers from the data.
+INTERPRETATION = {
+    "physical_significance": "",   # what the axes/quantities mean physically, normalisation
+    "results": "",                 # journal-style description of preliminary results (str or list of paragraphs)
+    "discussion": [],              # directions worth discussing/analysing (list of strings)
+}
 WIDTH = "double"                        # single 89 | one_half 120 | double 183 | slide | poster | mm number
 PROFILE = "paper"                       # paper | slide | poster
 NROWS, NCOLS = 1, 3
@@ -118,7 +125,7 @@ def main():
             axes.append(ax)
         if PANEL_LETTERS:
             layout.panel_labels(c.fig, axes, titles=[p.get("title", "") for p in PANELS])
-        prov = {"source_id": SOURCE_ID, "brief": dict(BRIEF),
+        prov = {"source_id": SOURCE_ID, "brief": dict(BRIEF), "interpretation": INTERPRETATION,
                 "layout": {"width": WIDTH, "grid": [NROWS, NCOLS], "width_ratios": WIDTH_RATIOS,
                            "height_ratios": HEIGHT_RATIOS, "height_mm": HEIGHT_MM, "margins_mm": list(MARGINS_MM),
                            "panels": [{"row": p["row"], "col": p["col"], "title": p.get("title", "")} for p in PANELS]},
@@ -126,7 +133,7 @@ def main():
                 "synthetic": "placeholder" in SOURCE_ID}
         report = export_figure(c.fig, OUT_STEM, state, provenance=prov, formats=FORMATS, dpi=DPI,
                                allow_overwrite=a.overwrite, kind="figure")
-    print(json.dumps({"outputs": report["outputs"], "font": report["font_resolved"],
+    print(json.dumps({"outputs": report["outputs"], "readme_zh": report.get("readme_zh"), "font": report["font_resolved"],
                       "size_mm": report["size_mm"]}, ensure_ascii=False))
 
 

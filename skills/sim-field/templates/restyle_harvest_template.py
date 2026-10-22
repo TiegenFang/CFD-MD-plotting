@@ -57,6 +57,14 @@ OPT_IN = {
 # does; quote those facts in the questions you ask the user (restyle-mode.md, Step 2). Set confirmed=True and fill
 # the answers ONLY after the user answered, or after they said "just do it". `--assume-defaults` is for unattended
 # runs and is recorded in the sidecar as such.
+# Chinese figure README (<stem>.README.zh-CN.md): sections 4-6. Fill from the REAL data after viewing the figure,
+# or leave empty and the file marks them as pending. Only claims the displayed data support; numbers from the data.
+INTERPRETATION = {
+    "physical_significance": "",   # what the axes/quantities mean physically, normalisation
+    "results": "",                 # journal-style description of preliminary results (str or list of paragraphs)
+    "discussion": [],              # directions worth discussing/analysing (list of strings)
+}
+
 CONTRACT = {
     "confirmed": False,
     "answers_source": "",                    # "user" | "default-unattended"
@@ -169,7 +177,7 @@ def main():
             if diffs:
                 raise SystemExit(f"FROZEN LAYER CHANGED in frame {frame['name'] or fi} - not exporting:\n  "
                                  + "\n  ".join(diffs))
-            prov = {"source_id": SOURCE_ID,
+            prov = {"source_id": SOURCE_ID, "interpretation": INTERPRETATION,
                     "restyle": {"mode": "harvest", "original_script": str(ORIGINAL_SCRIPT),
                                 "original_argv": list(frame["argv"]),
                                 "original_sha256": hashlib.sha256(Path(ORIGINAL_SCRIPT).read_bytes()).hexdigest(),
@@ -182,7 +190,7 @@ def main():
             rep = export_figure(c.fig, stem, state, provenance=prov, formats=FORMATS, dpi=DPI,
                                 allow_overwrite=a.overwrite, kind="field")
         review = restyle.side_by_side(old, c.fig, str(stem) + ".before_after.png")
-        outputs.append({"frame": frame["name"] or OUT_NAME, "files": rep["outputs"], "review": str(review),
+        outputs.append({"frame": frame["name"] or OUT_NAME, "files": rep["outputs"], "readme_zh": rep.get("readme_zh"), "review": str(review),
                         "opt_in_changes": changes})
     print(json.dumps({"frames": len(outputs), "outputs": outputs, "frozen_layer_identical": True}, indent=1))
 

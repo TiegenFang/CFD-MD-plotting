@@ -30,6 +30,8 @@ Both skills have two modes:
   field panels with streamlines, wake zoom insets.
 - **QA gate on export.** Clipped text, tiny fonts, unlabeled colour bars, font substitution, CJK inside math and
   wrong canvas width block the export. Every figure also gets a `.viz.json` provenance file and a caption stub.
+- **A Chinese README for every figure** (`<stem>.README.zh-CN.md`): axes, legend, figure type, colour meaning, processing, and
+  the physical significance, journal-style preliminary results and discussion directions. See [Figure README](#figure-readme-chinese).
 - **OpenFOAM helpers:** hardened `postProcessing` `.dat` reader and log residual reader.
 
 ## Install
@@ -52,7 +54,7 @@ No `AGENTS.md` changes are needed: each `SKILL.md` carries its own calling rules
 ```bash
 python skills/sim-plot/scripts/render_plot.py examples/line.json --out out/line
 python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-python -m pytest tests -q          # 61 tests
+python -m pytest tests -q          # 63 tests
 python verify.py                   # end-to-end check (run without SCIVIS_ALLOW_FONT_FALLBACK)
 ```
 
@@ -91,6 +93,26 @@ For an existing figure and the code that made it:
 Templates: [`skills/sim-field/templates/`](skills/sim-field/templates). Protocol:
 [`skills/sim-plot/references/restyle-mode.md`](skills/sim-plot/references/restyle-mode.md).
 
+## Figure README (Chinese)
+
+Every exported figure comes with `<stem>.README.zh-CN.md` (switch off with `"readme": false` in a config). Example:
+[`previews/field_wake.README.zh-CN.md`](previews/field_wake.README.zh-CN.md).
+
+| Section | Content | Source |
+|---|---|---|
+| 1 Figure type and layout | type, panels, canvas size, medium, outputs | generated from the figure |
+| 2 Axes | x and y label, linear/log/symlog, range, per panel | generated from the figure |
+| 3 Legend and colour | legend entries, what colour encodes, colour-bar label, limits, clipped fraction, extend | generated from the figure and provenance |
+| 4 Physical significance | what the quantities mean, normalisation | written by the agent from the real data |
+| 5 Preliminary results | journal-style description with numbers and units, plus a submission checklist | written by the agent |
+| 6 Discussion directions | analyses the figure invites, plus automatic checks (clipped cells, non-statistical error bands, log axes, synthetic data) | agent + generated |
+| 7 Processing and reproducibility | transformations, restyle audit (frozen vs changed), original script hash | generated from provenance |
+
+Sections 4-6 are interpretation, which a program cannot know. The agent writes them after looking at the figure and the data
+(`interpretation` in the config or `INTERPRETATION` in the templates); until then the file marks them `【待补充】` and its status
+line says so. The agent is instructed to state only what the displayed data support, to separate observation from explanation,
+and never to draw physical conclusions from synthetic data.
+
 ## Usage workflows
 
 The prompts below are what you type; the cards are what the agent asks (as multiple-choice question cards in agents
@@ -126,6 +148,7 @@ Agent > Rendering. Frozen-layer audit: identical (values, smoothing, limits, ext
         restyle_out/rz_charge_restyled.viz.json        (audit + the answers above)
         restyle_out/rz_charge_restyled.caption.txt     (mentions the percentile limits and smoothing)
         restyle_out/rz_charge_restyled.before_after.png
+        restyle_out/rz_charge_restyled.README.zh-CN.md (axes, legend, colour, frozen/changed lists; sections 4-6 from the original script's labels and what you told me)
 ```
 
 What the options do in the harvest template ([`restyle_harvest_template.py`](skills/sim-field/templates/restyle_harvest_template.py)):
@@ -173,6 +196,7 @@ Agent > Copied recipes/custom_layout_template.py to results/figures/make_fig3.py
         figures_out/fig3.pdf | .png (600 dpi) | .svg
         figures_out/fig3.viz.json       (brief, layout, answers)
         figures_out/fig3.caption.txt
+        figures_out/fig3.README.zh-CN.md (axes, legend, colour; physical significance, results, discussion written from your data)
 ```
 
 The agent's wording will differ. What the skill enforces is the sequence: read the brief, ask only what is missing, state

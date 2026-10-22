@@ -40,6 +40,14 @@ CMAP_OPT_IN = "signed"
 # ---- INTAKE CONTRACT: the script refuses to render until the user has confirmed the plan -------------
 # First run prints the frozen summary only. Quote it in the questions (restyle-mode.md, Step 2), then set
 # confirmed=True and answers_source="user". `--assume-defaults` is for unattended runs and is recorded as such.
+# Chinese figure README (<stem>.README.zh-CN.md): sections 4-6. Fill from the REAL data after viewing the figure,
+# or leave empty and the file marks them as pending. Only claims the displayed data support; numbers from the data.
+INTERPRETATION = {
+    "physical_significance": "",   # what the axes/quantities mean physically, normalisation
+    "results": "",                 # journal-style description of preliminary results (str or list of paragraphs)
+    "discussion": [],              # directions worth discussing/analysing (list of strings)
+}
+
 CONTRACT = {"confirmed": False, "answers_source": "", "improve": "typography+layout", "keep_frozen": True,
             "target": "paper, single column"}
 
@@ -133,12 +141,12 @@ def main():
         print("FROZEN SUMMARY (compare with the original figure):", json.dumps(summary, default=str))
         if not CONTRACT["confirmed"]:
             raise SystemExit(3)   # intake not confirmed: ask the user first, nothing was exported
-        prov = {"source_id": SOURCE_ID, "restyle": {"mode": "frozen-block", "frozen": list(restyle.FROZEN),
+        prov = {"source_id": SOURCE_ID, "interpretation": INTERPRETATION, "restyle": {"mode": "frozen-block", "frozen": list(restyle.FROZEN),
                                                     "summary": summary, "intake": dict(CONTRACT),
                                                     "original_files_written": False}}
         rep = export_figure(c.fig, OUT_STEM, state, provenance=prov, formats=FORMATS,
                             allow_overwrite=a.overwrite, kind="field")
-    print(json.dumps({"outputs": rep["outputs"]}, indent=1))
+    print(json.dumps({"outputs": rep["outputs"], "readme_zh": rep.get("readme_zh")}, indent=1))
 
 
 if __name__ == "__main__":

@@ -75,7 +75,9 @@ over the original figure/data/script. Reuse one restyle script per figure family
 
 ## Step 4 - deliver
 - new files only: figure (pdf/png/svg), `.viz.json` (contains the frozen fingerprint and the audit result),
-  `.caption.txt` (complete it; mention smoothing/limits/clipping that the original used), `.before_after.png`.
+  `.caption.txt` (complete it; mention smoothing/limits/clipping that the original used), `.before_after.png`,
+  and `.README.zh-CN.md` (Chinese figure README: axes, legend, colour, frozen/changed lists are automatic; fill sections
+  4-6 only from the original script, its labels and what the user told you, never from guesses about the physics).
 - report: what changed (presentation list), what was kept (frozen list with the actual values: vmin/vmax,
   extend, sigma, interpolation, cmap), opt-in changes, what could not be verified.
 - then, separately and clearly labelled, optional suggestions the user may adopt later (e.g. SymLog, a

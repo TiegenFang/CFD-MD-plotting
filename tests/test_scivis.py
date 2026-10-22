@@ -615,3 +615,40 @@ def test_skill_docs_carry_calling_rules_and_no_agents_snippet():
         text = (root / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
         assert "calling rules" in text and "create_layout" in text and "restyle_scope" in text
     assert (root / "skills" / "sim-plot" / "references" / "create-mode.md").exists()
+
+
+def test_chinese_figure_readme_contents_and_interpretation(tmp_path):
+    import matplotlib.colors as mc
+    from scivis import layout
+    from scivis.export import export_figure
+    from scivis.theme import style_context
+
+    def build():
+        c = layout.make_canvas("single", 50)
+        ax = c.ax(0, 0)
+        ax.plot([0, 1, 2], [1, 2, 3], label="case A")
+        ax.plot([0, 1, 2], [3, 2, 1], ls="--", label="case B")
+        ax.set_xlabel(r"$t/t_0$"); ax.set_ylabel("Cd (-)"); ax.legend()
+        return c.fig
+
+    interp = {"physical_significance": "PHYS-TEXT", "results": ["RES-1", "RES-2"], "discussion": ["DISC-1"]}
+    with style_context("paper", allow_font_fallback=True) as st:
+        rep = export_figure(build(), tmp_path / "a", st, provenance={"source_id": "x", "interpretation": interp},
+                            formats=["png"], kind="line")
+        txt = (tmp_path / "a.README.zh-CN.md").read_text(encoding="utf-8")
+        assert rep["readme_zh"] == "a.README.zh-CN.md"
+        for needle in ("$t/t_0$", "Cd (-)", "case A", "case B", "PHYS-TEXT", "RES-2", "DISC-1", "线性", "第 4–6 节已写入"):
+            assert needle in txt
+        assert "【待补充】" not in txt
+        export_figure(build(), tmp_path / "b", st, provenance={"source_id": "x"}, formats=["png"])
+        txt = (tmp_path / "b.README.zh-CN.md").read_text(encoding="utf-8")
+        assert "【待补充】" in txt and "尚未撰写" in txt
+        export_figure(build(), tmp_path / "c", st, provenance={"source_id": "x", "config": {"readme": False}}, formats=["png"])
+        assert not (tmp_path / "c.README.zh-CN.md").exists()
+
+
+def test_readme_lists_colourbar_and_clipping():
+    import json
+    root = Path(__file__).resolve().parents[1]
+    txt = (root / "previews" / "field_wake.README.zh-CN.md").read_text(encoding="utf-8")
+    assert "色标：" in txt and "截断" in txt and "ω_z" in txt

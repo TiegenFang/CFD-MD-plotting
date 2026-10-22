@@ -11,7 +11,7 @@
     56.5,
     95.0
   ],
-  "raster_dpi": 450,
+  "raster_dpi": 600,
   "versions": {
     "numpy": "2.5.3",
     "matplotlib": "3.11.2",
@@ -35,15 +35,21 @@
     "rz_charge_restyled.svg"
   ],
   "file_bytes": {
-    "rz_charge_restyled.pdf": 269291,
-    "rz_charge_restyled.png": 344960,
-    "rz_charge_restyled.svg": 395600
+    "rz_charge_restyled.pdf": 391481,
+    "rz_charge_restyled.png": 502299,
+    "rz_charge_restyled.svg": 560967
   },
   "provenance": {
     "source_id": "synthetic demo",
+    "interpretation": {
+      "physical_significance": "",
+      "results": "",
+      "discussion": []
+    },
     "restyle": {
       "mode": "harvest",
       "original_script": "examples/original_rz_charge.py",
+      "original_argv": [],
       "original_sha256": "e2adbb088a1c017b12189653076ff0371eddadf4bb718b4829c15cdd8bc1056e",
       "frozen": [
         "array values, masks and coordinates",
@@ -64,6 +70,7 @@
         "panel labels",
         "export formats / dpi"
       ],
+      "size_mode": "compact",
       "opt_in_changes": [
         "cmap: RdBu_r -> vik_white (user opt-in)"
       ],
