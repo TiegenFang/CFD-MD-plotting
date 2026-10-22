@@ -27,12 +27,17 @@ BRIEF = {
     "layout": "1 x 3 row, equal panels, letters a-c",
     "requirements": [],                 # e.g. ["x range 0-4 in all panels", "case A is always blue"]
 }
-# Chinese figure README (<stem>.README.zh-CN.md): sections 4-6. Fill from the REAL data after viewing the figure,
-# or leave empty and the file marks them as pending. Only claims the displayed data support; numbers from the data.
+# Chinese figure README (<stem>.README.zh-CN.md), sections 4-6. Set "mode" from the user's answer to `readme_sections`:
+#   "draft" (default: the agent drafts, marked "待核对")  |  "author" (user writes them)  |  "skip".
+# Each item is a string or {"text": ..., "origin": "data" | "user" | "label" | "script" | "suggestion"}. Tag every
+# paragraph. Only claims the displayed data support, numbers computed from the data. If the agent has no data or script
+# (image only), is unsure, or the data are synthetic: leave the section empty and give the reason in "pending".
 INTERPRETATION = {
-    "physical_significance": "",   # what the axes/quantities mean physically, normalisation
-    "results": "",                 # journal-style description of preliminary results (str or list of paragraphs)
-    "discussion": [],              # directions worth discussing/analysing (list of strings)
+    "mode": "draft",
+    "physical_significance": [],   # e.g. [{"text": "...", "origin": "label"}]
+    "results": [],                 # journal-style, observations only: [{"text": "...", "origin": "data"}]
+    "discussion": [],              # questions/checks, not conclusions: [{"text": "...", "origin": "suggestion"}]
+    "pending": {},                 # e.g. {"results": "only an image was supplied, no data to compute from"}
 }
 WIDTH = "double"                        # single 89 | one_half 120 | double 183 | slide | poster | mm number
 PROFILE = "paper"                       # paper | slide | poster

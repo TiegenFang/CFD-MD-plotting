@@ -33,7 +33,9 @@ First public release of the two skills with a shared styling, colour and layout 
   recorded in `.viz.json`).
 - Chinese figure README written with every export (`scivis/readme_zh.py`): figure type, axes, legend, colour meaning,
   processing and restyle audit generated from the figure; physical significance, journal-style results and discussion
-  directions taken from `interpretation` (placeholders marked until written). `"readme": false` disables it.
+  directions taken from `interpretation`. Question `readme_sections` (draft / author / skip); every paragraph tagged by
+  origin (data, label, user, script, suggestion); per-section status; unsupported sections stay pending with a stated
+  reason. `"readme": false` disables the file.
 - Calling rules now live in each `SKILL.md`; `AGENTS.snippet.md` was removed.
 
 ### Tooling

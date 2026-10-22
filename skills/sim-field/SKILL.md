@@ -35,7 +35,7 @@ sequence; do not duplicate their analysis.
 **Create mode:** the user's layout and requirements are the specification (panel arrangement, size, colour limits and
 reference, overlays, zoom insets, labels). Read what they already gave you, then ask at most four questions about what
 is missing, in one batch with a recommended answer each: `create_layout`, `create_size`, `create_encoding`,
-`create_requirements` (ids and options in `create-mode.md`; for fields, `create_encoding` is the colour map role and
+`create_requirements`, plus `readme_sections` (ids and options in `create-mode.md`; for fields, `create_encoding` is the colour map role and
 the limits/reference for signed quantities). Render with `scripts/render_field.py CONFIG.json` for one prepared field
 panel (put the brief in the config as `"brief": {...}`), `recipes/cfd_field_panels.py` or `recipes/wake_zoom.py` for
 near matches, and `../sim-plot/recipes/custom_layout_template.py` for any other specified layout (field panels use
@@ -63,8 +63,8 @@ find the original plotting code yourself, then run the intake gate: the template
 has confirmed the plan (Step 2 of the reference). Ask at most four questions, in one batch with a recommended
 answer each, and only about what you could not find in the code: `restyle_scope` (vik + layout / layout only /
 also display parameters), `restyle_size` (compact / strict 89 mm / presentation; always pdf + 600 dpi png + svg),
-`restyle_frames` (one representative frame / all existing frames, written to a new directory), and the original
-script if unclear. Then copy `templates/restyle_harvest_template.py` (runnable matplotlib original) or
+`restyle_frames` (one representative frame / all existing frames, written to a new directory), `readme_sections`
+(draft / I write / skip), and the original script if unclear. Then copy `templates/restyle_harvest_template.py` (runnable matplotlib original) or
 `templates/restyle_field_template.py` (paste original data code into the FROZEN block) into the user's project,
 never `render_field.py`.
 
@@ -77,14 +77,23 @@ layer differs from the original.
 
 Every export also writes `<stem>.README.zh-CN.md` (disable with `"readme": false` in a config). Sections 1-3 and 7
 (figure type, panels, x/y axes with scale and range, legend, colour meaning, colour-bar limits, processing, restyle
-audit) are generated from the figure itself. Sections 4-6 are interpretation and are YOURS to write after you have
-looked at the figure and the real data: **4 physical significance**, **5 preliminary results in journal style**,
-**6 directions worth discussing**. Put them in `interpretation` (`physical_significance`, `results`, `discussion`;
-a key in the JSON config, or `INTERPRETATION` in the templates), or edit the generated file. Rules: state only what the
-displayed data support, with numbers and units computed from the data; separate observation from explanation and hedge
-mechanisms ("may", "consistent with"); name the uncertainty definition or say there is none; list the processing
-(smoothing, clipping, transforms); do not claim novelty or physical conclusions from synthetic data. Never leave a
-`【待补充】` placeholder in a README you hand over without telling the user it is pending.
+audit) are generated from the figure itself. Sections 4-6 are interpretation: **4 physical significance**, **5 preliminary results in journal style**,
+**6 directions worth discussing**. Ask once (`readme_sections`, in the same question batch): *draft them for me*
+(recommended) / *I will write them* / *skip*. Put the answer in `interpretation["mode"]` (`draft` | `author` | `skip`).
+
+When drafting, after looking at the figure and the real data:
+- Tag every paragraph with its origin: `data` (computed from the data), `label` (read from axis/legend/script labels),
+  `user` (what the user told you), `script` (read from the original script), `suggestion` (a hypothesis or check).
+  Items are strings or `{"text": ..., "origin": ...}` under `interpretation` in the JSON config, or `INTERPRETATION`
+  in the templates. The README shows each origin and a per-section status.
+- Section 5: observations only, with numbers and units computed from the data; separate observation from explanation
+  and hedge mechanisms ("may", "consistent with"); name the uncertainty definition or say there is none; list the
+  processing (smoothing, clipping, transforms).
+- Section 6: questions and checks to run ("worth testing whether ..."), never conclusions about mechanism.
+- Do not write what you cannot support: with an image only, no data or script, an unclear question, or synthetic
+  data, leave the section empty and give the reason in `interpretation["pending"]` (e.g. `{"results": "..."}`).
+  Never draw physical conclusions from synthetic data.
+- Never hand over a README that still shows `【待补充】` without telling the user which sections are pending and why.
 
 ## Field contract before rendering
 

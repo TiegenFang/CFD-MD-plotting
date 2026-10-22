@@ -42,9 +42,11 @@
   "provenance": {
     "source_id": "synthetic demo",
     "interpretation": {
-      "physical_significance": "",
-      "results": "",
-      "discussion": []
+      "mode": "draft",
+      "physical_significance": [],
+      "results": [],
+      "discussion": [],
+      "pending": {}
     },
     "restyle": {
       "mode": "harvest",

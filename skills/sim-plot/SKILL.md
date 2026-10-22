@@ -33,12 +33,12 @@ neither. A field panel plus a quantitative plot may use the two routes in sequen
 
 **Create mode:** the user's layout and requirements are the specification. Read what they already gave you (layout,
 size, colour meaning, ranges), ask at most four questions about what is missing in one batch with a recommended
-answer each (`create_layout`, `create_size`, `create_encoding`, `create_requirements`), then render through
+answer each (`create_layout`, `create_size`, `create_encoding`, `create_requirements`, plus `readme_sections`), then render through
 `render_plot.py`, a recipe, or `recipes/custom_layout_template.py` (any rows x columns, ratios, panel letters).
 The brief is recorded in `.viz.json`.
 
 **Restyle mode:** find the original plotting code yourself; ask at most four questions, only about what you could not
-find (`restyle_scope`, `restyle_size`, `restyle_frames`). Data, smoothing, interpolation, colour limits, extend, colour
+find (`restyle_scope`, `restyle_size`, `restyle_frames`, plus `readme_sections`). Data, smoothing, interpolation, colour limits, extend, colour
 map, axis limits and units are frozen; only presentation changes (`scivis.restyle`). Use the restyle templates in
 the user's project, not `render_field.py`/`render_plot.py`. Never overwrite the original figure, data or script.
 
@@ -46,14 +46,23 @@ the user's project, not `render_field.py`/`render_plot.py`. Never overwrite the 
 
 Every export also writes `<stem>.README.zh-CN.md` (disable with `"readme": false` in a config). Sections 1-3 and 7
 (figure type, panels, x/y axes with scale and range, legend, colour meaning, colour-bar limits, processing, restyle
-audit) are generated from the figure itself. Sections 4-6 are interpretation and are YOURS to write after you have
-looked at the figure and the real data: **4 physical significance**, **5 preliminary results in journal style**,
-**6 directions worth discussing**. Put them in `interpretation` (`physical_significance`, `results`, `discussion`;
-a key in the JSON config, or `INTERPRETATION` in the templates), or edit the generated file. Rules: state only what the
-displayed data support, with numbers and units computed from the data; separate observation from explanation and hedge
-mechanisms ("may", "consistent with"); name the uncertainty definition or say there is none; list the processing
-(smoothing, clipping, transforms); do not claim novelty or physical conclusions from synthetic data. Never leave a
-`【待补充】` placeholder in a README you hand over without telling the user it is pending.
+audit) are generated from the figure itself. Sections 4-6 are interpretation: **4 physical significance**, **5 preliminary results in journal style**,
+**6 directions worth discussing**. Ask once (`readme_sections`, in the same question batch): *draft them for me*
+(recommended) / *I will write them* / *skip*. Put the answer in `interpretation["mode"]` (`draft` | `author` | `skip`).
+
+When drafting, after looking at the figure and the real data:
+- Tag every paragraph with its origin: `data` (computed from the data), `label` (read from axis/legend/script labels),
+  `user` (what the user told you), `script` (read from the original script), `suggestion` (a hypothesis or check).
+  Items are strings or `{"text": ..., "origin": ...}` under `interpretation` in the JSON config, or `INTERPRETATION`
+  in the templates. The README shows each origin and a per-section status.
+- Section 5: observations only, with numbers and units computed from the data; separate observation from explanation
+  and hedge mechanisms ("may", "consistent with"); name the uncertainty definition or say there is none; list the
+  processing (smoothing, clipping, transforms).
+- Section 6: questions and checks to run ("worth testing whether ..."), never conclusions about mechanism.
+- Do not write what you cannot support: with an image only, no data or script, an unclear question, or synthetic
+  data, leave the section empty and give the reason in `interpretation["pending"]` (e.g. `{"results": "..."}`).
+  Never draw physical conclusions from synthetic data.
+- Never hand over a README that still shows `【待补充】` without telling the user which sections are pending and why.
 
 ## Scope and precedence
 

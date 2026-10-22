@@ -637,12 +637,12 @@ def test_chinese_figure_readme_contents_and_interpretation(tmp_path):
                             formats=["png"], kind="line")
         txt = (tmp_path / "a.README.zh-CN.md").read_text(encoding="utf-8")
         assert rep["readme_zh"] == "a.README.zh-CN.md"
-        for needle in ("$t/t_0$", "Cd (-)", "case A", "case B", "PHYS-TEXT", "RES-2", "DISC-1", "线性", "第 4–6 节已写入"):
+        for needle in ("$t/t_0$", "Cd (-)", "case A", "case B", "PHYS-TEXT", "RES-2", "DISC-1", "线性", "agent 草稿，待核对"):
             assert needle in txt
         assert "【待补充】" not in txt
         export_figure(build(), tmp_path / "b", st, provenance={"source_id": "x"}, formats=["png"])
         txt = (tmp_path / "b.README.zh-CN.md").read_text(encoding="utf-8")
-        assert "【待补充】" in txt and "尚未撰写" in txt
+        assert "【待补充】" in txt and "| 4 物理意义 | 待补充 |" in txt
         export_figure(build(), tmp_path / "c", st, provenance={"source_id": "x", "config": {"readme": False}}, formats=["png"])
         assert not (tmp_path / "c.README.zh-CN.md").exists()
 
@@ -652,3 +652,35 @@ def test_readme_lists_colourbar_and_clipping():
     root = Path(__file__).resolve().parents[1]
     txt = (root / "previews" / "field_wake.README.zh-CN.md").read_text(encoding="utf-8")
     assert "色标：" in txt and "截断" in txt and "ω_z" in txt
+
+
+def test_readme_origin_tags_status_and_modes(tmp_path):
+    from scivis import layout
+    from scivis.export import export_figure
+    from scivis.theme import style_context
+
+    def fig():
+        c = layout.make_canvas("single", 50)
+        ax = c.ax(0, 0); ax.plot([0, 1, 2], [1, 2, 3]); ax.set_xlabel("x"); ax.set_ylabel("y")
+        return c.fig
+
+    def make(name, interp, **extra):
+        with style_context("paper", allow_font_fallback=True) as st:
+            export_figure(fig(), tmp_path / name, st, provenance={"source_id": "s", "interpretation": interp, **extra},
+                          formats=["png"])
+        return (tmp_path / f"{name}.README.zh-CN.md").read_text(encoding="utf-8")
+
+    t = make("a", {"physical_significance": [{"text": "PHYS", "origin": "label"}],
+                   "results": [{"text": "RES", "origin": "data"}, "UNTAGGED-RES"],
+                   "discussion": ["DISC-DEFAULT", {"text": "DISC-USER", "origin": "user"}]})
+    assert "PHYS 〔来源：依据图中标签〕" in t and "RES 〔来源：依据数据〕" in t
+    assert "UNTAGGED-RES 〔来源：未标注来源，请核对〕" in t and "DISC-DEFAULT 〔来源：建议，未验证〕" in t
+    assert t.count("agent 草稿，待核对") == 3
+    t = make("b", {"pending": {"results": "只有图片，没有数据"}})
+    assert "待补充：只有图片，没有数据" in t and "| 4 物理意义 | 待补充 |" in t
+    t = make("c", {"mode": "author"})
+    assert "作者自行撰写" in t and "【作者填写】" in t
+    t = make("d", {"mode": "skip", "results": ["SHOULD-NOT-APPEAR"]})
+    assert "本次跳过" in t and "SHOULD-NOT-APPEAR" not in t and "撰写要求" not in t
+    t = make("e", {"results": ["R"]}, synthetic=True)
+    assert "合成数据，以下内容仅作示例" in t

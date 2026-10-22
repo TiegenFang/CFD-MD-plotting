@@ -54,7 +54,7 @@ No `AGENTS.md` changes are needed: each `SKILL.md` carries its own calling rules
 ```bash
 python skills/sim-plot/scripts/render_plot.py examples/line.json --out out/line
 python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-python -m pytest tests -q          # 63 tests
+python -m pytest tests -q          # 64 tests
 python verify.py                   # end-to-end check (run without SCIVIS_ALLOW_FONT_FALLBACK)
 ```
 
@@ -67,7 +67,7 @@ case A always blue"):
 
 1. The agent reads what you already specified (layout, size, colour meaning, ranges, outputs) and the data.
 2. It asks at most four questions with recommended answers, only about what is missing: `create_layout`,
-   `create_size`, `create_encoding`, `create_requirements`. Unattended runs use the recommended answers and record that
+   `create_size`, `create_encoding`, `create_requirements` (plus `readme_sections`). Unattended runs use the recommended answers and record that
    nobody confirmed them.
 3. It builds the figure on the shared canvas: `render_plot.py` / `render_field.py` for one prepared panel, a recipe for a
    near match, or [`custom_layout_template.py`](skills/sim-plot/recipes/custom_layout_template.py) for any other layout
@@ -82,7 +82,7 @@ For an existing figure and the code that made it:
 
 1. The agent finds the plotting code and runs the template once. It reads, and prints, what the original does:
    colour map, limits, extend arrows, fraction of cells beyond the limits, smoothing and interpolation, size.
-2. It asks at most four questions (`restyle_scope`, `restyle_size`, `restyle_frames`, and the original script if unclear) with recommended answers, quoting those facts. A script gate
+2. It asks at most four questions (`restyle_scope`, `restyle_size`, `restyle_frames`, `readme_sections`, and the original script if unclear) with recommended answers, quoting those facts. A script gate
    (`CONTRACT["confirmed"]`) prevents rendering before this is done; unattended runs use `--assume-defaults`
    and are recorded as such.
 3. It rebuilds the panel with `scivis`. Values, smoothing, interpolation, colour limits, extend, axis limits, units
@@ -108,10 +108,17 @@ Every exported figure comes with `<stem>.README.zh-CN.md` (switch off with `"rea
 | 6 Discussion directions | analyses the figure invites, plus automatic checks (clipped cells, non-statistical error bands, log axes, synthetic data) | agent + generated |
 | 7 Processing and reproducibility | transformations, restyle audit (frozen vs changed), original script hash | generated from provenance |
 
-Sections 4-6 are interpretation, which a program cannot know. The agent writes them after looking at the figure and the data
-(`interpretation` in the config or `INTERPRETATION` in the templates); until then the file marks them `【待补充】` and its status
-line says so. The agent is instructed to state only what the displayed data support, to separate observation from explanation,
-and never to draw physical conclusions from synthetic data.
+Sections 4-6 are interpretation, which a program cannot know. The agent asks once (`readme_sections`): *draft them for me*
+(recommended), *I will write them*, or *skip*. When drafting, it follows these rules:
+
+- Every paragraph carries its origin: *from the data*, *from the axis labels*, *from your description*, *from the original
+  script*, or *suggestion, unverified*. The file shows a per-section status (draft to verify / pending / author writes / skipped).
+- Section 5 contains observations with numbers computed from the data; section 6 contains questions and checks to run, not
+  conclusions about mechanism.
+- It does not write what it cannot support. With only an image, no data or script, an unclear question or synthetic data, the
+  section stays `【待补充】` with the reason given.
+
+The text goes in `interpretation` in the config or `INTERPRETATION` in the templates.
 
 ## Usage workflows
 
@@ -139,6 +146,10 @@ Agent > Found the plotting code results/figures/plot_rz_charge.py. Ran it once w
 ─── [restyle_frames] One representative frame or every existing frame? Output goes to a new, separate directory.
     ◉ One representative frame (recommended)
     ○ All 30 frames
+─── [readme_sections] Sections 4-6 of the Chinese figure README (physical significance, results, discussion)?
+    ◉ Draft them for me, tagged by origin and marked for checking (recommended)
+    ○ I will write them
+    ○ Skip them
 
 You   > (accepts the recommended answers)
 
@@ -158,6 +169,7 @@ What the options do in the harvest template ([`restyle_harvest_template.py`](ski
 | `restyle_scope` | vik + layout / layout only / adjust display parameters | `OPT_IN["cmap"]` = `"signed-if-diverging"` / `None` / plus `OPT_IN["vlim"]` etc. |
 | `restyle_size` | compact / strict 89 mm / presentation | `SIZE_MODE` = `"compact"` (panel ≤ 80 mm tall, tall panels become narrow figures) / `"strict-89"` / `"presentation"` (160 mm wide, panel ≤ 110 mm tall); `DPI = 600` |
 | `restyle_frames` | one frame / all frames | `FRAMES` with one entry, or one entry per existing frame; files go to `OUT_DIR` |
+| `readme_sections` | draft / I write / skip | `INTERPRETATION["mode"]` = `"draft"` / `"author"` / `"skip"` |
 
 Unattended runs skip the cards: `--assume-defaults` uses the recommended answers and records that nobody confirmed them.
 
@@ -186,6 +198,10 @@ Agent > Read results/profiles.csv, cp_parity.csv, dp.csv (units: m/s, -, kPa). M
 ─── [create_requirements] Hard constraints to honour?
     ◉ None beyond the layout (recommended)
     ○ I will list them (axis ranges, shared limits, labels)
+─── [readme_sections] (asked right after, as a fifth question)
+    ◉ Draft sections 4-6 of the Chinese README for me, tagged and marked for checking (recommended)
+    ○ I will write them
+    ○ Skip them
 
 You   > (accepts the recommended answers)
 

@@ -90,10 +90,39 @@ def _interp(prov: dict) -> dict:
     return {}
 
 
-def _paras(v) -> list[str]:
+ORIGIN_ZH = {"data": "依据数据", "user": "依据你的说明", "label": "依据图中标签", "script": "依据原脚本",
+             "suggestion": "建议，未验证"}
+UNTAGGED = "未标注来源，请核对"
+
+
+def _items(v, default_origin: str | None = None) -> list[tuple[str, str]]:
+    """Normalise a section to [(text, origin label)]. Items are str or {"text": ..., "origin": data|user|label|script|suggestion}."""
     if not v:
         return []
-    return [v] if isinstance(v, str) else [str(x) for x in v]
+    seq = [v] if isinstance(v, (str, dict)) else list(v)
+    out = []
+    for it in seq:
+        if isinstance(it, dict):
+            text, origin = str(it.get("text", "")).strip(), it.get("origin")
+        else:
+            text, origin = str(it).strip(), None
+        if text:
+            out.append((text, ORIGIN_ZH.get(origin or default_origin or "", UNTAGGED)))
+    return out
+
+
+def _section(interp: dict, key: str, default_origin: str | None):
+    """-> (status, items, pending reason). mode: "draft" (default) | "author" | "skip"."""
+    mode = interp.get("mode", "draft")
+    if mode == "skip":
+        return "本次跳过", [], ""
+    items = _items(interp.get(key), default_origin)
+    reason = (interp.get("pending") or {}).get(key, "")
+    if items:
+        return ("agent 草稿，待核对" if mode != "author" else "作者撰写，待核对"), items, ""
+    if mode == "author":
+        return "作者自行撰写", [], reason
+    return ("待补充：" + reason if reason else "待补充"), [], reason
 
 
 def _checks(prov: dict, panels, cbars) -> list[str]:
@@ -127,16 +156,22 @@ def readme_zh(fig, prov: dict, report: dict, *, kind: str, stem: str) -> str:
     stats = prov.get("field_statistics") or {}
     rs = prov.get("restyle") or {}
     kind_zh = _KIND_ZH.get(cfg.get("kind") or kind, _KIND_ZH["figure"])
-    done = sum(bool(interp.get(k)) for k in ("physical_significance", "results", "discussion"))
-    state = ("第 4–6 节已写入，请作者逐句核对" if done == 3 else
-             f"第 4–6 节尚有 {3 - done} 项待补充" if done else "第 4–6 节尚未撰写，需要补充")
+    st4, it4, r4 = _section(interp, "physical_significance", None)
+    st5, it5, r5 = _section(interp, "results", None)
+    st6, it6, r6 = _section(interp, "discussion", "suggestion")
     w, h = report["size_mm"]
     L = []
     A = L.append
     A(f"# 图说明文档：{stem.split('/')[-1].split(chr(92))[-1]}")
     A("")
-    A(f"> 状态：第 1–3、7 节由程序根据图本身和溯源记录自动生成；{state}。"
-      "解释性内容（第 4–6 节）必须由作者依据真实数据确认后再用于论文。")
+    A("> 第 1–3、7 节由程序根据图本身和溯源记录自动生成。第 4–6 节为解释性内容，程序无法获知，必须由作者依据真实数据确认后再用于论文。")
+    A("")
+    A("| 章节 | 状态 |")
+    A("|---|---|")
+    A("| 1–3、7 | 自动生成 |")
+    A(f"| 4 物理意义 | {st4} |")
+    A(f"| 5 初步结果描述 | {st5} |")
+    A(f"| 6 讨论方向 | {st6} |")
     A("")
     if prov.get("synthetic"):
         A("> ⚠ 本图使用合成数据，仅作示意。")
@@ -187,43 +222,47 @@ def readme_zh(fig, prov: dict, report: dict, *, kind: str, stem: str) -> str:
     if any(len({ln.get_linestyle() for ln in ax.lines if len(ln.get_xdata()) > 2}) > 1 for ax in fig.axes):
         A("- 系列之间除颜色外还以线型区分，灰度打印时仍可辨认。")
     A("")
+    def body(items, status, hint, bullets=False):
+        if items:
+            for text, origin in items:
+                A((f"- {text} 〔来源：{origin}〕" if bullets else f"{text} 〔来源：{origin}〕") + ("" if bullets else "\n"))
+        elif status == "本次跳过":
+            A("本次未要求撰写。")
+            A("")
+        elif status.startswith("作者自行"):
+            A(f"【作者填写】{hint}")
+            A("")
+        else:
+            A(f"{PLACEHOLDER}{hint}")
+            A("")
+
+    syn = bool(prov.get("synthetic"))
     A("## 4. 物理意义")
     A("")
-    ps = _paras(interp.get("physical_significance"))
-    if ps:
-        L.extend(p + "\n" for p in ps)
-    else:
-        A(f"{PLACEHOLDER}说明每个坐标量的物理含义与无量纲化方式，图中所示量反映什么物理过程，与哪一个控制参数相关。只写数据和模型能够支持的内容。")
-        A("")
+    body(it4, st4, "说明每个坐标量的物理含义与无量纲化方式，图中所示量反映什么物理过程，与哪一个控制参数相关。只写数据和模型能够支持的内容。")
     A("## 5. 初步结果描述（按期刊投稿要求）")
     A("")
-    rs_txt = _paras(interp.get("results"))
-    if rs_txt:
-        L.extend(p + "\n" for p in rs_txt)
-    else:
-        A(f"{PLACEHOLDER}用客观、可核对的语句描述图中看到的内容。")
+    if syn and it5:
+        A("> ⚠ 数据为合成数据，以下内容仅作示例，不得用于论文。")
         A("")
-    A("撰写要求（投稿检查清单）：")
-    A("")
-    A("- 每个结论对应图中可见的证据，写出具体数值、单位和对比对象（如“峰值位于 x = …，较基准增大 …%”）。")
-    A("- 区分观察与解释：先写“图 1a 显示……”，再单独写可能的原因，并使用“可能”“与……一致”等限定语，不写没有数据支持的因果。")
-    A("- 说明误差或不确定度的来源与定义；没有误差时说明为何没有。")
-    A("- 说明数据处理（平滑、截断、坐标变换、采样、统计窗口），与第 7 节一致。")
-    A("- 图注只写“是什么”，正文写“说明了什么”；避免重复，也不要把结论写进图注。")
-    A("- 对比同类研究时引用文献并比较同一量；不要夸大创新性。")
-    A("")
+    body(it5, st5, "用客观、可核对的语句描述图中看到的内容。" + (f"（待补充原因：{r5}）" if r5 else ""))
+    if st5 != "本次跳过":
+        A("撰写要求（投稿检查清单）：")
+        A("")
+        A("- 每个结论对应图中可见的证据，写出具体数值、单位和对比对象（如“峰值位于 x = …，较基准增大 …%”）。")
+        A("- 区分观察与解释：先写“图 1a 显示……”，再单独写可能的原因，并使用“可能”“与……一致”等限定语，不写没有数据支持的因果。")
+        A("- 说明误差或不确定度的来源与定义；没有误差时说明为何没有。")
+        A("- 说明数据处理（平滑、截断、坐标变换、采样、统计窗口），与第 7 节一致。")
+        A("- 图注只写“是什么”，正文写“说明了什么”；避免重复，也不要把结论写进图注。")
+        A("- 对比同类研究时引用文献并比较同一量；不要夸大创新性。")
+        A("")
     A("## 6. 值得进一步讨论与分析的方向")
     A("")
-    ds = _paras(interp.get("discussion"))
-    if ds:
-        for d in ds:
-            A(f"- {d}")
-    else:
-        A(f"- {PLACEHOLDER}列出由本图自然引出、且可用现有或补充数据检验的问题（参数敏感性、机理、与文献的差异、局限性）。")
+    body(it6, st6, "列出由本图自然引出、且可用现有或补充数据检验的问题（参数敏感性、机理、与文献的差异、局限性）。" + (f"（待补充原因：{r6}）" if r6 else ""), bullets=True)
     chk = _checks(prov, panels, cbars)
     if chk:
         A("")
-        A("由图和溯源记录自动提示的核查项：")
+        A("由图和溯源记录自动提示的核查项（程序生成）：")
         A("")
         for c in chk:
             A(f"- {c}")

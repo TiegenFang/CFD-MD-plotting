@@ -34,6 +34,10 @@ Question ids (skip those already answered; quote what you found so the user can 
 - `create_requirements` - hard constraints to honour: axis limits/scales, shared ranges, fixed case colours,
   CJK labels, annotations. Options: *none beyond the layout* (rec) / *I will list them* (the user types them).
 
+- `readme_sections` - the Chinese figure README, sections 4-6. Options: *draft them for me, tagged and marked for
+  checking* (rec) / *I will write them* / *skip them*. If more than four questions remain, ask this one in a second
+  call right after the others; if unattended, use the recommended answer.
+
 Push back once on a risky answer (log axis with zeros, truncated bar axis, more than 6 hues) and say what it costs;
 then follow the user's decision and record it. Unattended or "just do it": do not ask; take the recommended answers,
 set `answers_source="default-unattended"`, and list the assumptions first in your report.
@@ -69,6 +73,7 @@ sidecar.
 
 Render, run the QA gate, look at the PNG at final size, fix a demonstrated problem in the same source, stop.
 Check every hard requirement against the picture (ranges, letters, colours, widths) and say which ones were met.
-Finish the caption stub and sections 4-6 of the Chinese figure README (`<stem>.README.zh-CN.md`: physical
-significance, journal-style preliminary results, discussion directions; see SKILL.md). Do not rerun data reduction because a font or colour changed, and do not write extra
+Finish the caption stub and, per the answer to `readme_sections`, sections 4-6 of the Chinese figure README
+(`<stem>.README.zh-CN.md`: physical significance, journal-style preliminary results, discussion directions, each
+paragraph tagged by origin; see SKILL.md). Do not rerun data reduction because a font or colour changed, and do not write extra
 variants, smoke-test projects or copied per-case scripts.

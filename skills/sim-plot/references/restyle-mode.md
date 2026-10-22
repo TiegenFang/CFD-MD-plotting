@@ -55,6 +55,9 @@ Opt-in changes (ask first, record each in `restyle.opt_in_changes`): colour map,
      (`"presentation"`, 160 mm wide, panel <= 110 mm tall).
    - `restyle_frames` - how many figures. Options: *one representative frame* (rec) / *all existing frames*
      (`FRAMES` = one entry per frame with its own argv; outputs go to a NEW directory, `OUT_DIR`).
+   - `readme_sections` - sections 4-6 of the Chinese figure README. Options: *draft them for me, tagged and marked
+     for checking* (rec) / *I will write them* / *skip them*. Draft only from the original script, its labels and
+     what the user told you.
    - Only if unresolved: *Original* ("Is `<script>` the code that produced this figure?").
 3. **Push back once on a risky answer** (e.g. "make the scale tighter" -> say what percentage gets clipped and
    what that hides), then follow the user's decision.

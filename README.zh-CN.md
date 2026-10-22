@@ -45,7 +45,7 @@
 ```bash
 python skills/sim-plot/scripts/render_plot.py examples/line.json --out out/line
 python skills/sim-field/scripts/render_field.py examples/field_wake.json --overwrite
-python -m pytest tests -q          # 63 个测试
+python -m pytest tests -q          # 64 个测试
 python verify.py                   # 端到端检查（运行时请勿设置 SCIVIS_ALLOW_FONT_FALLBACK）
 ```
 
@@ -56,7 +56,7 @@ python verify.py                   # 端到端检查（运行时请勿设置 SCI
 适用于有自己的布局和要求的新图（"三个面板，183 mm 宽，面板字母 a–c，y 范围一致，工况 A 始终用蓝色"）：
 
 1. agent 先读取你已经说明的内容（布局、尺寸、配色含义、坐标范围、输出）以及数据。
-2. 它一次最多提 4 个带推荐答案的问题，只问缺少的信息：`create_layout`、`create_size`、`create_encoding`、`create_requirements`。无人值守时使用推荐答案，并如实记录"无人确认"。
+2. 它一次最多提 4 个带推荐答案的问题，只问缺少的信息：`create_layout`、`create_size`、`create_encoding`、`create_requirements`（另有 `readme_sections`）。无人值守时使用推荐答案，并如实记录"无人确认"。
 3. 它在共享画布上构建图：单个已处理好的面板用 `render_plot.py` / `render_field.py`；接近的情形用 recipe；其他布局用 [`custom_layout_template.py`](skills/sim-plot/recipes/custom_layout_template.py)（行×列、宽高比例、跨格面板、面板字母、位于外侧的色标）。
 4. QA 关卡通过后输出 pdf / png（600 dpi）/ svg，以及记录你的需求与布局的 `.viz.json` 和图注草稿。
 
@@ -67,7 +67,7 @@ python verify.py                   # 端到端检查（运行时请勿设置 SCI
 适用于已有图以及生成它的代码：
 
 1. agent 先找到原绘图代码，并运行模板一次。它会读出并打印原图的实际设置：色图、色标范围、extend 箭头、超出范围的单元比例、平滑与插值、图的尺寸。
-2. 它引用这些事实，一次最多提 4 个带推荐答案的问题（`restyle_scope`、`restyle_size`、`restyle_frames`，以及原脚本不明确时的确认）。脚本中的关卡（`CONTRACT["confirmed"]`）会阻止未确认就出图；无人值守时使用 `--assume-defaults`，并被如实记录。
+2. 它引用这些事实，一次最多提 4 个带推荐答案的问题（`restyle_scope`、`restyle_size`、`restyle_frames`、`readme_sections`，以及原脚本不明确时的确认）。脚本中的关卡（`CONTRACT["confirmed"]`）会阻止未确认就出图；无人值守时使用 `--assume-defaults`，并被如实记录。
 3. 它用 `scivis` 重建面板。数值、平滑、插值、色标范围、extend、坐标范围、单位与文字被**冻结**；字体、尺寸、边框、刻度、色标和描边被替换。冻结层与原图不一致时拒绝导出。更换色图需要明确同意（带符号的场使用 vik）。
 4. 输出：图（pdf / png / svg）、带审计结果的 `.viz.json`、图注草稿，以及前后对比图。
 
@@ -89,7 +89,13 @@ python verify.py                   # 端到端检查（运行时请勿设置 SCI
 | 6 值得讨论的方向 | 图引出的可分析问题，另有自动核查项（被截断单元、非统计误差带、对数轴、合成数据） | agent + 自动生成 |
 | 7 数据处理与可复现信息 | 数据变换、restyle 审计（冻结与更改项）、原脚本哈希 | 由溯源记录自动生成 |
 
-第 4–6 节属于解释性内容，程序无法获知。agent 会在看过图和数据之后撰写（配置中的 `interpretation`，或模板中的 `INTERPRETATION`）；在此之前文件以 `【待补充】` 标出，并在状态行中说明。agent 被要求只写已显示数据能支持的内容、区分观察与解释，并且不对合成数据下任何物理结论。
+第 4–6 节属于解释性内容，程序无法获知。agent 会先问一次（`readme_sections`）：*替我起草*（推荐）、*我自己写*、*跳过*。起草时遵守以下规则：
+
+- 每一段都标注来源：*依据数据*、*依据图中标签*、*依据你的说明*、*依据原脚本*或*建议，未验证*。文件中逐节显示状态（草稿待核对 / 待补充 / 作者自行撰写 / 本次跳过）。
+- 第 5 节只写用数据算出的观察结果（含数值与单位）；第 6 节写需要检验的问题和核查项，而不是关于机理的结论。
+- 无法支持的内容不写。只有图片、没有数据或脚本、问题不明确或数据为合成数据时，该节保持 `【待补充】` 并注明原因。
+
+文本写在配置中的 `interpretation`，或模板中的 `INTERPRETATION`。
 
 ## 使用流程
 
@@ -115,6 +121,10 @@ Agent > 找到绘图代码 results/figures/plot_rz_charge.py，已在禁止保�
 ─── [restyle_frames] 这次处理一张代表图，还是全部现有图？输出均写入新的独立目录。
     ◉ 同一张代表图（推荐）
     ○ 全部 30 张
+─── [readme_sections] 中文图说明文档的第 4–6 节（物理意义、结果、讨论）怎么处理？
+    ◉ 替我起草，标注来源并标明待核对（推荐）
+    ○ 我自己写
+    ○ 跳过
 
 You   > （接受全部推荐答案）
 
@@ -134,6 +144,7 @@ Agent > 开始渲染。冻结层审计：一致（数值、平滑、色标范围
 | `restyle_scope` | vik＋版式 / 仅版式 / 调整显示参数 | `OPT_IN["cmap"]` = `"signed-if-diverging"` / `None` / 另加 `OPT_IN["vlim"]` 等 |
 | `restyle_size` | 紧凑 / 严格 89 mm / 汇报 | `SIZE_MODE` = `"compact"`（面板高度 ≤ 80 mm，细长面板变成窄图）/ `"strict-89"` / `"presentation"`（宽 160 mm，面板高度 ≤ 110 mm）；`DPI = 600` |
 | `restyle_frames` | 一张 / 全部 | `FRAMES` 只含一项，或为每个现有帧各一项；文件写入 `OUT_DIR` |
+| `readme_sections` | 起草 / 我来写 / 跳过 | `INTERPRETATION["mode"]` = `"draft"` / `"author"` / `"skip"` |
 
 无人值守时不会出现卡片：`--assume-defaults` 使用推荐答案，并记录"无人确认"。
 
@@ -161,6 +172,10 @@ Agent > 已读取 results/profiles.csv、cp_parity.csv、dp.csv（单位：m/s�
 ─── [create_requirements] 有哪些必须满足的硬性要求？
     ◉ 除布局外没有（推荐）
     ○ 我来列出（坐标范围、共享范围、标签）
+─── [readme_sections] （紧接着作为第 5 个问题单独询问）
+    ◉ 替我起草中文说明文档的第 4–6 节，标注来源并标明待核对（推荐）
+    ○ 我自己写
+    ○ 跳过
 
 You   > （接受全部推荐答案）
 
